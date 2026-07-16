@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sai Harsha Traders</title>
+    <title>SAI HARSHA TRADERS</title>
     <style>
         :root {
             --primary-color: #1e3a8a;
@@ -77,13 +77,14 @@
             background-color: var(--secondary-color);
         }
 
-        /* Main Content Area */
+        /* Main Content Area (Shifted Higher) */
         #main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
             transition: all 0.3s ease;
-            padding: 30px;
+            padding: 15px 30px 30px 30px; /* Reduced top padding */
         }
+
 
         #main-content.expanded {
             margin-left: 0;
@@ -319,12 +320,29 @@
             color: #64748b;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
+
+        /* Strict CSS Media Filters for Paper/PDF Outputs Rendering */
+        @media print {
+            #sidebar, .top-bar, .brand-header, .no-print {
+                display: none !important;
+            }
+            #main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+            }
+            .invoice-box {
+                border: none !important;
+                box-shadow: none !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        }
     </style>
 </head>
 <body>
-
-    <!-- Collapsible Sidebar -->
-    <nav id="sidebar">
+    <!-- Collapsible Sidebar (With Inactivity Hover Interceptors) -->
+    <nav id="sidebar" onmouseenter="clearSidebarIdleTimer()" onmouseleave="startSidebarIdleTimer()">
         <div class="profile-section">
             <h3>MAIN PROFILE</h3>
             <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">Sai Harsha Traders</p>
@@ -342,21 +360,33 @@
     <!-- Main Workspace Area -->
     <main id="main-content">
         
-        <!-- Navigation & Utility Row -->
-        <div class="top-bar">
+        <!-- Navigation & Utility Row (Tighter Spacing) -->
+        <div class="top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
             <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-            <button class="cart-toggle-btn" onclick="switchSection('cart-section')">
-                🛒 Cart (<span id="cart-count">0</span>)
-            </button>
+            <!-- Cart button is removed from here to float at the bottom right instead -->
         </div>
 
-        <!-- Corporate Branding -->
-        <header class="brand-header">
-            <h1>Sai Harsha Traders</h1>
-            <div id="contact-placeholder">
-                <p>[Contact Info Placeholder - Email & Phone options will render here dynamically]</p>
+
+        <!-- Corporate Branding (Pulled to the Top) -->
+        <header class="brand-header" style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 0; padding-top: 0; margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 12px; flex-wrap: wrap; gap: 15px;">
+            <!-- Shifted Title to right align inside its flex box container -->
+            <div style="text-align: right; flex: 1;">
+                <h1 style="font-size: 2.8rem; color: var(--primary-color); margin: 0; line-height: 1.1; text-transform: uppercase; font-weight: 800; text-shadow: 2px 2px 4px rgba(30, 58, 138, 0.15);">SAI HARSHA TRADERS</h1>
+            </div>
+            <div style="text-align: right; font-size: 0.95rem; color: #475569; margin-left: auto;">
+                <div style="font-weight: 600; color: #1e293b; font-size: 1.1rem; margin-bottom: 2px;">
+                    👤 Y.Krishna Mohan <span style="font-weight: normal; color: #64748b; font-size: 0.9rem;">(Owner)</span>
+                </div>
+                <div style="color: var(--secondary-color); font-weight: 600; font-size: 1rem; margin-bottom: 2px;">
+                    📞 +91 9247203824
+                </div>
+                <div style="color: #64748b; font-size: 0.9rem; font-weight: 500;">
+                    📍 Location: epurupalem main road chirala
+                </div>
             </div>
         </header>
+
+
 
         <!-- SECTION: HOME (Product Management Catalog) -->
         <section id="home-section" class="app-section active">
@@ -376,6 +406,18 @@
             <div class="cart-container">
                 <h2>Your Shopping Cart</h2>
                 
+                <!-- Mandatory Customer Details Input Grid -->
+                <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #cbd5e1; margin: 15px 0 25px 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px;">
+                    <div>
+                        <label style="font-weight: 700; font-size: 0.9rem; color: var(--primary-color);">Customer Name <span style="color: #ef4444;">*</span></label>
+                        <input type="text" id="cart-cust-name" placeholder="Enter Full Name" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px; font-size: 0.95rem; font-weight: 600;">
+                    </div>
+                    <div>
+                        <label style="font-weight: 700; font-size: 0.9rem; color: var(--primary-color);">Customer Phone <span style="color: #ef4444;">*</span></label>
+                        <input type="tel" id="cart-cust-phone" placeholder="Enter 10-Digit Mobile" maxlength="10" style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 5px; font-size: 0.95rem; font-weight: 600;">
+                    </div>
+                </div>
+                
                 <h3 class="cart-section-title">Sale Items</h3>
                 <div id="sale-cart-items"></div>
 
@@ -394,9 +436,21 @@
         <!-- SECTION: INVOICE GENERATOR -->
         <section id="invoice-section" class="app-section">
             <div class="invoice-box" id="print-area">
-                <h2 style="text-align: center; color: var(--primary-color);">INVOICE</h2>
-                <p style="text-align: center; font-weight: bold;">Sai Harsha Traders</p>
+                <h2 style="text-align: center; color: var(--primary-color); letter-spacing: 1px;">INVOICE</h2>
+                <p style="text-align: center; font-weight: bold; color: var(--primary-color);">Sai Harsha Traders</p>
                 <hr style="margin: 15px 0;">
+                
+                <!-- Dynamic Customer Details Info Row Inside Printed Bill -->
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 0.9rem; color: #334155; line-height: 1.5; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <div>
+                        <strong>Billed To:</strong><br>
+                        <span id="invoice-cust-name" style="font-weight: 700; color: #0f172a;">--</span>
+                    </div>
+                    <div style="text-align: right;">
+                        <strong>Contact Number:</strong><br>
+                        <span id="invoice-cust-phone" style="font-weight: 700; color: #0f172a;">--</span>
+                    </div>
+                </div>
                 
                 <table class="invoice-table">
                     <thead>
@@ -409,12 +463,29 @@
                     <tbody id="invoice-rows"></tbody>
                 </table>
 
-                <div style="margin-top: 30px; text-align: right; font-size: 1.2rem;">
+                <div style="margin-top: 30px; text-align: right; font-size: 1.2rem; margin-bottom: 20px;">
                     <strong>Grand Total: ₹<span id="invoice-grand-total">0</span></strong>
                 </div>
-                <button class="add-to-cart-btn" style="margin-top: 20px;" onclick="switchSection('home-section')">Back to Home</button>
+
+                <!-- Corporate Terms & Conditions Disclaimer Panel -->
+                <div style="margin-top: 35px; border-top: 1px solid #cbd5e1; padding-top: 15px; font-size: 0.8rem; color: #64748b; line-height: 1.5;">
+                    <strong style="color: #475569; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">Terms & Conditions:</strong>
+                    <ol style="margin-left: 15px; padding-left: 0;">
+                        <li>Goods once sold or delivered in good condition cannot be returned or exchanged.</li>
+                        <li>All rental items must be returned on or before the agreed duration timeline. Late returns will incur additional daily charges.</li>
+                        <li>Any physical damage, breaks, or loss of rental assets during the hire term will be billed directly to the customer.</li>
+                        <li>This is a computer-generated invoice statement and does not require a physical signature.</li>
+                    </ol>
+                </div>
+                
+                <!-- Action Controls Row for Printing Bills -->
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 25px;" class="no-print">
+                    <button class="add-to-cart-btn" style="flex: 1; min-width: 140px; background-color: #10b981;" onclick="downloadInvoicePDF()">📥 Download / Print PDF</button>
+                    <button class="add-to-cart-btn" style="flex: 1; min-width: 140px; background-color: #64748b;" onclick="switchSection('home-section')">🏠 Back to Home</button>
+                </div>
             </div>
         </section>
+
 
                 <!-- SECTION: UPDATE ITEMS DASHBOARD -->
         <section id="update-section" class="app-section">
@@ -477,13 +548,29 @@
         </section>
 
 
-        <!-- SECTION: PREVIOUS BILLS PLACEHOLDER -->
+        <!-- SECTION: PREVIOUS BILLS (ARCHIVAL TRANSACTION LOG) -->
         <section id="bills-section" class="app-section">
-            <div class="placeholder-view">
-                <h2>Archive: Previous Invoices</h2>
-                <p style="margin-top: 10px;">Historical ledger lookup table for all systematically finalized receipts.</p>
+            <div class="placeholder-view" style="text-align: left; max-width: 900px; margin: 0 auto; background: white; padding: 30px;">
+                <h2 style="color: var(--primary-color); margin-bottom: 10px;">Historical Invoice Archive Ledger</h2>
+                <p style="color: #64748b; margin-bottom: 25px; font-size: 0.95rem;">Review and access historical transactional copies. Every completed invoice summary row generated is safely compiled here for print retrieval tracking.</p>
+                
+                <div style="overflow-x: auto;">
+                    <table class="invoice-table" style="margin-top: 0; width: 100%;">
+                        <thead>
+                            <tr style="background: #f1f5f9;">
+                                <th style="padding: 12px; text-align: left;">Invoice Number</th>
+                                <th style="padding: 12px; text-align: left;">Timestamp Date</th>
+                                <th style="padding: 12px; text-align: left;">Materials Description</th>
+                                <th style="padding: 12px; text-align: right;">Total Paid Value</th>
+                                <th style="padding: 12px; text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bills-archive-rows"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
+
 
                 <!-- SECTION: GARAGE (STOCK COUNT MANAGEMENT) -->
         <section id="garage-section" class="app-section">
@@ -523,34 +610,129 @@
         </section>
 
         <!-- SECTION: TODAY'S SALES -->
+                <!-- SECTION: TODAY'S SALES (DAILY SALES LEDGER) -->
         <section id="sales-section" class="app-section">
-            <div class="placeholder-view">
-                <h2>Daily Sales Ledger Matrix</h2>
-                <p style="margin-top: 10px;">Calculated financial operational monitoring workspace for current daily values.</p>
+            <div class="placeholder-view" style="text-align: left; max-width: 900px; margin: 0 auto; background: white; padding: 30px;">
+                <h2 style="color: var(--primary-color); margin-bottom: 25px;">Daily Sales Dashboard</h2>
+                
+                <!-- Analytical Key Performance Metric Counters (Fixed Syntax) -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                    <div style="background: #eff6ff; border-left: 5px solid var(--secondary-color); padding: 20px; border-radius: 8px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Total Gross Revenue</span>
+                        <h3 style="font-size: 1.8rem; color: var(--primary-color); margin-top: 5px; font-weight: 700;">₹<span id="sales-gross-revenue">0</span></h3>
+                    </div>
+                    <div style="background: #f0fdf4; border-left: 5px solid #10b981; padding: 20px; border-radius: 8px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Outright Sales Income</span>
+                        <h3 style="font-size: 1.8rem; color: #15803d; margin-top: 5px; font-weight: 700;">₹<span id="sales-outright-revenue">0</span></h3>
+                    </div>
+                    <div style="background: #fff7ed; border-left: 5px solid #f97316; padding: 20px; border-radius: 8px;">
+                        <span style="font-size: 0.8rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Rental Term Revenue</span>
+                        <h3 style="font-size: 1.8rem; color: #c2410c; margin-top: 5px; font-weight: 700;">₹<span id="sales-rental-revenue">0</span></h3>
+                    </div>
+                </div>
+
+
+                <!-- Live Transaction Registry List Table -->
+                <h3 style="color: #0f172a; margin-bottom: 15px; font-size: 1.15rem;">Today's Invoices Ledger Log</h3>
+                <div style="overflow-x: auto;">
+                    <table class="invoice-table" style="margin-top: 0; width: 100%;">
+                        <thead>
+                            <tr style="background: #f1f5f9;">
+                                <th style="padding: 12px; text-align: left;">Timestamp</th>
+                                <th style="padding: 12px; text-align: left;">Bill Items Summary</th>
+                                <th style="padding: 12px; text-align: right;">Total Bill Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales-ledger-rows"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
-
     </main>
+
+    <!-- Floating Bottom-Right Shopping Cart Action Button Badge -->
+    <button class="cart-toggle-btn no-print" onclick="switchSection('cart-section')" style="position: fixed; bottom: 30px; right: 30px; z-index: 999; padding: 15px 25px; border-radius: 50px; font-size: 1.1rem; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.4); border: none; background-color: var(--primary-color); color: white; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 10px; transition: transform 0.2s, background-color 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.backgroundColor='var(--secondary-color)';" onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='var(--primary-color)';">
+        🛒 View Cart (<span id="cart-count">0</span>)
+    </button>
+
 
     <!-- JAVASCRIPT LOGIC ENGINE -->
       <script>
                       // Main live mutable data store engine configured for images instead of emojis
         let productsDB = [
-            { id: 1, name: 'Cement Bricks (Batch of 100)', salePrice: 4500, rentPrice: 600, imageSrc: 'https://unsplash.com', stockQuantity: 45 },
-            { id: 2, name: 'Premium PVC Windows', salePrice: 3200, rentPrice: 450, imageSrc: 'https://unsplash.com', stockQuantity: 12 },
-            { id: 3, name: 'Steel Reinforcement Bars (Rebar)', salePrice: 7500, rentPrice: 1200, imageSrc: 'https://unsplash.com', stockQuantity: 0 },
-            { id: 4, name: 'Concrete Mixer Heavy Machinery', salePrice: 85000, rentPrice: 4500, imageSrc: 'https://unsplash.com', stockQuantity: 3 }
+            { id: 1, name: 'Cement Bricks ', salePrice: 8, rentPrice: 0, imageSrc: 'https://unsplash.com', stockQuantity: 45 },
+            { id: 2, name: 'Premium PVC Windows', salePrice: 300, rentPrice: 40, imageSrc: 'https://unsplash.com', stockQuantity: 12 },
+            { id: 3, name: 'Steel Reinforcement Bars (Rebar)', salePrice: 750, rentPrice: 120, imageSrc: 'https://unsplash.com', stockQuantity: 30 },
+            { id: 4, name: 'Iron Stands', salePrice: 3000, rentPrice: 250, imageSrc: 'https://unsplash.com', stockQuantity: 3 }
         ];
 
         // Active State Storage Engine
         let userCart = [];
 
-        // Application Layout Mechanics
+        
+
+
+
+        // Internal memory logging engine for store transactions tracking
+        let salesHistory = [];
+
+          // Automatic Inactivity Tracking Core
+        let sidebarTimeout = null;
+
+        function startSidebarIdleTimer() {
+            // Cancel any old active countdowns first to prevent duplicate loops
+            clearSidebarIdleTimer();
+            
+            const sidebar = document.getElementById('sidebar');
+            // Only start counting down if the sidebar is physically open
+            if (sidebar && !sidebar.classList.contains('closed')) {
+                sidebarTimeout = setTimeout(() => {
+                    closeSidebarAutomatically();
+                }, 10000); // 10,000 milliseconds = 10 seconds
+            }
+        }
+
+        function clearSidebarIdleTimer() {
+            if (sidebarTimeout) {
+                clearTimeout(sidebarTimeout);
+                sidebarTimeout = null;
+            }
+        }
+
+        function closeSidebarAutomatically() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const menuBtn = document.querySelector('.menu-btn');
+            
+            if (sidebar && !sidebar.classList.contains('closed')) {
+                sidebar.classList.add('closed');
+                if (mainContent) mainContent.classList.add('expanded');
+                if (menuBtn) {
+                    menuBtn.innerText = '☰';
+                    menuBtn.style.fontSize = '1.8rem';
+                }
+            }
+        }
+
+        // Layout Mechanics (With Integrated 10-Second Auto-Hide)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('main-content');
+            const menuBtn = document.querySelector('.menu-btn');
+            
             sidebar.classList.toggle('closed');
             mainContent.classList.toggle('expanded');
+            
+            if (sidebar.classList.contains('closed')) {
+                menuBtn.innerText = '☰';
+                menuBtn.style.fontSize = '1.8rem';
+                clearSidebarIdleTimer(); // Stop counting down if closed manually
+            } else {
+                menuBtn.innerText = '✕';
+                menuBtn.style.fontSize = '1.6rem';
+                menuBtn.style.fontWeight = 'bold';
+                startSidebarIdleTimer(); // Kick off the 10-second timer when opened
+            }
         }
 
         function switchSection(sectionId, element = null) {
@@ -565,6 +747,9 @@
                 element.classList.add('active');
             }
             
+            // Reset the 10-second timer whenever a user clicks a menu link
+            startSidebarIdleTimer();
+
             if(sectionId === 'home-section') {
                 renderCatalog();
             } else if(sectionId === 'cart-section') {
@@ -573,8 +758,15 @@
                 renderInventoryList();
             } else if(sectionId === 'garage-section') {
                 renderGaragePanel();
+            } else if(sectionId === 'sales-section') {
+                renderTodaySalesDashboard();
+            } else if(sectionId === 'bills-section') {
+                renderBillsArchivalLedger();
             }
         }
+
+
+
 
 
         // Garage Section Rendering and Management Logic
@@ -631,7 +823,7 @@
         }
 
 
-                // Home View Catalog Matrix Rendering with Live Search Filtering Controls
+        // Mobile-Optimized Horizontal List Catalog Renderer with Large Touch Buttons
         function renderCatalog() {
             const container = document.getElementById('products-container');
             container.innerHTML = '';
@@ -641,11 +833,13 @@
                 return;
             }
 
-            // Extract keywords entered into the homepage search bar element
+            container.style.display = "flex";
+            container.style.flexDirection = "column";
+            container.style.gap = "15px";
+
             const searchInput = document.getElementById('catalog-search-input');
             const searchKeyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-            // Filter products based on typed query metrics
             const filteredProducts = productsDB.filter(product => 
                 product.name.toLowerCase().includes(searchKeyword)
             );
@@ -660,58 +854,92 @@
                 const isRentDisabled = product.rentPrice === undefined || product.rentPrice === null || isNaN(product.rentPrice) || product.rentPrice <= 0;
                 
                 const actionButton = isOutOfStock 
-                    ? `<button class="add-to-cart-btn" style="background-color: #ef4444; cursor: not-allowed; width: 100%;" disabled>❌ No Stock Available</button>`
-                    : `<button class="add-to-cart-btn" style="width: 100%;" onclick="addItemToCart(${product.id})">Add Item to Basket</button>`;
+                    ? `<button class="add-to-cart-btn" style="background-color: #cbd5e1; color: #64748b; border: 1px solid #cbd5e1; cursor: not-allowed; width: 120px; font-weight: 700; border-radius: 6px; margin: 0; padding: 10px;" disabled>Sold Out</button>`
+                    : `<button class="add-to-cart-btn" style="width: 120px; background: linear-gradient(135deg, var(--secondary-color), var(--primary-color)); border: none; font-weight: 700; border-radius: 6px; margin: 0; padding: 10px 15px; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2); font-size:0.95rem;" onclick="addItemToCart(${product.id})">🛒 Add</button>`;
 
                 const imageTag = product.imageSrc 
-                    ? `<img src="${product.imageSrc}" alt="${product.name}">` 
-                    : `<div style="padding:20px; text-align:center; color:#94a3b8;">No Image Provided</div>`;
+                    ? `<img src="${product.imageSrc}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover;">` 
+                    : `<div style="padding:10px; text-align:center; color:#94a3b8; font-size: 0.8rem; font-weight: bold; background: #e2e8f0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">📦 No Img</div>`;
 
-                const rentPriceText = isRentDisabled ? `<span style="color:#ef4444; font-weight:bold;">Not for Rent</span>` : `₹${product.rentPrice}`;
+                const rentPriceText = isRentDisabled ? `<span style="color:#ef4444; font-weight:bold; font-size: 0.85rem;">N/A</span>` : `₹${product.rentPrice}`;
 
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                if(isOutOfStock) card.style.opacity = "0.75";
+                
+                card.style.background = "white";
+                card.style.border = "1px solid #e2e8f0";
+                card.style.boxShadow = "0 2px 10px rgba(15, 23, 42, 0.04)";
+                card.style.borderRadius = "10px";
+                card.style.overflow = "hidden";
+                card.style.padding = "12px";
+                card.style.display = "flex";
+                card.style.flexDirection = "row";
+                card.style.alignItems = "center";
+                card.style.justifyContent = "space-between";
+                card.style.gap = "15px";
+                card.style.width = "100%";
+                if(isOutOfStock) card.style.opacity = "0.8";
                 
                 card.innerHTML = `
-                    <div class="product-image">${imageTag}</div>
-                    <div class="product-info">
-                        <div>
-                            <h3 class="product-title" style="margin-bottom: 12px;">${product.name}</h3>
-                            
-                            <div style="display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px;">
-                                <p class="price-tag" style="margin:0; font-size:0.85rem;"><strong>Purchase:</strong><br><span style="color:#1e3a8a; font-weight:bold; font-size:1rem;">₹${product.salePrice}</span></p>
-                                <p class="price-tag" style="margin:0; font-size:0.85rem; text-align:right;"><strong>Rent Rate:</strong><br><span style="font-size:1rem;">${rentPriceText}</span></p>
-                            </div>
-
-                            <p style="font-size:0.8rem; font-weight:600; color:${isOutOfStock ? '#ef4444' : '#10b981'}; margin-top:5px; margin-bottom: 15px;">
-                                ${isOutOfStock ? 'Status: Sold Out' : `Garage Stock: ${product.stockQuantity} remaining`}
+                    <!-- Small square left-aligned image box -->
+                    <div style="width: 100px; height: 100px; flex-shrink: 0; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
+                        ${imageTag}
+                    </div>
+                    
+                    <!-- Middle Core Details Column -->
+                    <div style="flex: 2; display: flex; flex-direction: column; gap: 8px; text-align: left;">
+                        <h3 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: #0f172a;">${product.name}</h3>
+                        
+                        <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                            <p style="margin:0; font-size: 0.9rem; color:#475569;">
+                                <strong>Buy:</strong> <span style="color: var(--primary-color); font-weight: 800; font-size: 1.1rem;">₹${product.salePrice}</span>
+                            </p>
+                            <p style="margin:0; font-size: 0.9rem; color:#475569; border-left: 1px solid #e2e8f0; padding-left: 12px;">
+                                <strong>Rent:</strong> <span style="color: #475569; font-weight: 700; font-size: 1rem;">${rentPriceText}</span>
+                            </p>
+                            <p style="margin:0; font-size:0.85rem; font-weight:600; color:${isOutOfStock ? '#ef4444' : '#10b981'}; border-left: 1px solid #e2e8f0; padding-left: 12px;">
+                                ${isOutOfStock ? '🚫 Sold Out' : `📦 Stock: ${product.stockQuantity}`}
                             </p>
                         </div>
-                        <div>
-                            <div class="mode-selector" style="${isOutOfStock ? 'pointer-events:none; opacity:0.5;' : ''} margin-bottom: 15px;">
-                                <label class="mode-label">
-                                    <input type="radio" name="mode-${product.id}" value="sale" checked ${isOutOfStock ? 'disabled' : ''}> Sale
-                                </label>
-                                <label class="mode-label" style="margin-left: 15px; ${isRentDisabled ? 'opacity:0.4; cursor:not-allowed;' : ''}">
-                                    <input type="radio" name="mode-${product.id}" value="rent" ${isOutOfStock || isRentDisabled ? 'disabled' : ''}> Rent
-                                </label>
-                            </div>
+                    </div>
 
-                            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px; gap: 5px; ${isOutOfStock ? 'display:none;' : ''}">
-                                <button type="button" style="width:35px; height:35px; border:1px solid #cbd5e1; background:#f1f5f9; font-weight:bold; font-size:1.2rem; cursor:pointer; border-radius:4px;" onclick="adjustQuantityValue(${product.id}, -1)">-</button>
-                                <input type="number" id="qty-input-${product.id}" value="1" min="1" max="${product.stockQuantity}" style="width:65px; height:35px; text-align:center; font-weight:bold; border:1px solid #cbd5e1; border-radius:4px; font-size:1rem;" onchange="validateDirectQtyInput(this, ${product.stockQuantity})">
-                                <button type="button" style="width:35px; height:35px; border:1px solid #cbd5e1; background:#f1f5f9; font-weight:bold; font-size:1.2rem; cursor:pointer; border-radius:4px;" onclick="adjustQuantityValue(${product.id}, 1)">+</button>
-                            </div>
-
-                            ${actionButton}
+                    <!-- Right-Aligned Action Control Wrapper (Reconfigured into Large Mobile Touch Blocks) -->
+                    <div style="display: flex; flex-direction: row; align-items: center; gap: 15px; background: #f8fafc; border: 1px solid #f1f5f9; padding: 10px 15px; border-radius: 8px; flex-shrink: 0;">
+                        
+                        <!-- Premium Segmented Mobile-Friendly Mode Switcher Buttons -->
+                        <div style="display: flex; background: #e2e8f0; border-radius: 6px; padding: 3px; gap: 2px; ${isOutOfStock ? 'pointer-events:none; opacity:0.5;' : ''}">
+                            <!-- Buy Segment Block -->
+                            <button id="seg-sale-${product.id}" type="button" style="border: none; padding: 8px 14px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; background: var(--primary-color); color: white;" onclick="toggleMobileTransactionMode(${product.id}, 'sale')">
+                                Buy
+                            </button>
+                            <!-- Rent Segment Block -->
+                            <button id="seg-rent-${product.id}" type="button" style="border: none; padding: 8px 14px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; background: transparent; color: #475569; ${isRentDisabled ? 'opacity:0.3; cursor:not-allowed;' : ''}" ${isRentDisabled ? 'disabled' : ''} onclick="toggleMobileTransactionMode(${product.id}, 'rent')">
+                                Rent
+                            </button>
+                            <!-- Hidden state input tracker to maintain full code compatibility with checkout loops -->
+                            <input type="hidden" id="mobile-mode-input-${product.id}" value="sale">
                         </div>
+
+                        <!-- Quantity picker -->
+                        <div style="display: flex; align-items: center; gap: 8px; border-left: 1px dashed #cbd5e1; padding-left: 15px; ${isOutOfStock ? 'display:none;' : ''}">
+                            <div style="display: flex; align-items: center; background: white; border: 1px solid #cbd5e1; border-radius: 4px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                                <button type="button" style="width:28px; height:28px; border:none; background:#f1f5f9; font-weight:bold; font-size:1rem; cursor:pointer;" onclick="adjustQuantityValue(${product.id}, -1)">-</button>
+                                <input type="number" id="qty-input-${product.id}" value="1" min="1" max="${product.stockQuantity}" style="width:36px; height:28px; text-align:center; font-weight:700; border:none; font-size:0.9rem;" onchange="validateDirectQtyInput(this, ${product.stockQuantity})">
+                                <button type="button" style="width:28px; height:28px; border:none; background:#f1f5f9; font-weight:bold; font-size:1rem; cursor:pointer;" onclick="adjustQuantityValue(${product.id}, 1)">+</button>
+                            </div>
+                        </div>
+
+                        ${actionButton}
                     </div>
                 `;
+                
+                card.onmouseover = () => { card.style.borderColor = 'var(--secondary-color)'; };
+                card.onmouseout = () => { card.style.borderColor = '#e2e8f0'; };
+                card.style.transition = "all 0.2s ease";
+
                 container.appendChild(card);
             });
         }
-
 
 
 
@@ -876,6 +1104,33 @@
             }
         }
 
+                // Mobile UI Segment Toggle Controller Function
+        function toggleMobileTransactionMode(productId, selectedMode) {
+            const hiddenInput = document.getElementById(`mobile-mode-input-${productId}`);
+            const saleButton = document.getElementById(`seg-sale-${productId}`);
+            const rentButton = document.getElementById(`seg-rent-${productId}`);
+
+            if (!hiddenInput || !saleButton || !rentButton) return;
+
+            // Set hidden field data value state parameters
+            hiddenInput.value = selectedMode;
+
+            if (selectedMode === 'sale') {
+                // Light up Buy box, clear Rent box background properties
+                saleButton.style.background = "var(--primary-color)";
+                saleButton.style.color = "white";
+                rentButton.style.background = "transparent";
+                rentButton.style.color = "#475569";
+            } else {
+                // Light up Rent box, clear Buy box background properties
+                rentButton.style.background = "var(--primary-color)";
+                rentButton.style.color = "white";
+                saleButton.style.background = "transparent";
+                saleButton.style.color = "#475569";
+            }
+        }
+
+
         function addItemToCart(productId) {
             const product = productsDB.find(p => p.id === productId);
             if(!product) return;
@@ -894,7 +1149,8 @@
                 return;
             }
             
-            const selectedMode = document.querySelector(`input[name="mode-${productId}"]:checked`).value;
+            // Read from the high-end mobile segmented tracker component value instead of old radios
+            const selectedMode = document.getElementById(`mobile-mode-input-${productId}`).value;
             const singleUnitPrice = selectedMode === 'sale' ? product.salePrice : product.rentPrice;
             
             const cartItem = {
@@ -968,6 +1224,23 @@
                 return;
             }
 
+            // Extract and strictly validate input fields values
+            const customerNameVal = document.getElementById('cart-cust-name').value.trim();
+            const customerPhoneVal = document.getElementById('cart-cust-phone').value.trim();
+
+            if (!customerNameVal || !customerPhoneVal) {
+                alert('⚠️ Mandatory Fields Missing: Please fill in both Customer Name and Phone Number before generating the bill!');
+                return;
+            }
+            if (customerPhoneVal.length < 10) {
+                alert('⚠️ Invalid Phone: Mobile number must be exactly 10 digits long.');
+                return;
+            }
+
+            // Sync text details onto the active Invoice View panel slots instantly
+            document.getElementById('invoice-cust-name').innerText = customerNameVal;
+            document.getElementById('invoice-cust-phone').innerText = customerPhoneVal;
+
             const invoiceRowsContainer = document.getElementById('invoice-rows');
             invoiceRowsContainer.innerHTML = '';
             
@@ -975,12 +1248,26 @@
             const rentalItems = userCart.filter(i => i.transactionMode === 'rent');
             
             let finalCombinedBillSum = 0;
+            let outrightCategoryTotal = 0;
+            let rentalCategoryTotal = 0;
+            let loggedItemsSummary = [];
 
             if (salesItems.length > 0) {
                 appendInvoiceCategoryHeader(invoiceRowsContainer, 'Commercial Purchase Ledger (Outright Sales)');
                 salesItems.forEach(item => {
                     finalCombinedBillSum += item.price;
-                    const displayLabel = `${item.name} (x${item.quantity || 1})`;
+                    outrightCategoryTotal += item.price;
+                    
+                    const qtyCount = item.quantity || 1;
+                    loggedItemsSummary.push(`${item.name} (x${qtyCount}) [Sale]`);
+                    
+                    // Deduct inventory quantities safely from active Garage store registers
+                    const parentProduct = productsDB.find(p => p.id === item.id);
+                    if(parentProduct && parentProduct.stockQuantity !== undefined) {
+                        parentProduct.stockQuantity = Math.max(0, parentProduct.stockQuantity - qtyCount);
+                    }
+                    
+                    const displayLabel = `${item.name} (x${qtyCount})`;
                     appendInvoiceItemRow(invoiceRowsContainer, displayLabel, 'Sale Item', item.price);
                 });
             }
@@ -989,14 +1276,65 @@
                 appendInvoiceCategoryHeader(invoiceRowsContainer, 'Rental Agreement Term Assets');
                 rentalItems.forEach(item => {
                     finalCombinedBillSum += item.price;
-                    const displayLabel = `${item.name} (x${item.quantity || 1})`;
+                    rentalCategoryTotal += item.price;
+                    
+                    const qtyCount = item.quantity || 1;
+                    loggedItemsSummary.push(`${item.name} (x${qtyCount}) [Rent]`);
+                    
+                    // Deduct rental equipment stocks from active Garage levels
+                    const parentProduct = productsDB.find(p => p.id === item.id);
+                    if(parentProduct && parentProduct.stockQuantity !== undefined) {
+                        parentProduct.stockQuantity = Math.max(0, parentProduct.stockQuantity - qtyCount);
+                    }
+                    
+                    const displayLabel = `${item.name} (x${qtyCount})`;
                     appendInvoiceItemRow(invoiceRowsContainer, displayLabel, 'Rental Unit', item.price);
                 });
             }
 
+            // Capture exact current timestamps natively
+            const currentTime = new Date();
+            const formattedTimestamp = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateStringLabel = currentTime.toLocaleDateString();
+
+            // Structure unique tracking identifier code values
+            const uniqueInvoiceID = "SHT-" + currentTime.getFullYear() + (currentTime.getMonth()+1) + currentTime.getDate() + "-" + Math.floor(100 + Math.random() * 900);
+
+            // Package metadata properties definitions parameters array reference with customer info
+            const billingTransactionRecord = {
+                id: uniqueInvoiceID,
+                date: dateStringLabel + " " + formattedTimestamp,
+                customerName: customerNameVal,
+                customerPhone: customerPhoneVal,
+                summaryText: loggedItemsSummary.join(', '),
+                totalBillValue: finalCombinedBillSum,
+                salesItemsClone: [...salesItems], 
+                rentalItemsClone: [...rentalItems]
+            };
+
+            // Reset shopping cart customer inputs text fields clean
+            document.getElementById('cart-cust-name').value = "";
+            document.getElementById('cart-cust-phone').value = "";
+            salesHistory.push({
+                time: formattedTimestamp,
+                summary: loggedItemsSummary.join(', '),
+                saleIncome: outrightCategoryTotal,
+                rentIncome: rentalCategoryTotal,
+                grandTotal: finalCombinedBillSum
+            });
+
+            // If global archive container variable isn't active yet, assign initialization schema
+            if (window.billsArchiveStore === undefined) window.billsArchiveStore = [];
+            window.billsArchiveStore.push(billingTransactionRecord);
+
+            // Wipe basket data array structures clean post-checkout validation
+            userCart = [];
+            updateCartCounterBadge();
+
             document.getElementById('invoice-grand-total').innerText = finalCombinedBillSum;
             switchSection('invoice-section');
         }
+
 
         function appendInvoiceCategoryHeader(targetTableBody, headerTitle) {
             const headerRow = document.createElement('tr');
@@ -1013,11 +1351,128 @@
             `;
             targetTableBody.appendChild(bodyRow);
         }
+        // Historical Invoice Archive Table Renderer (With Customer Information Tracking)
+        function renderBillsArchivalLedger() {
+            const tbody = document.getElementById('bills-archive-rows');
+            tbody.innerHTML = '';
+
+            if (window.billsArchiveStore === undefined || window.billsArchiveStore.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#94a3b8; padding:30px;">Historical ledger records are currently clear.</td></tr>`;
+                return;
+            }
+
+            window.billsArchiveStore.forEach(bill => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="padding:12px; font-family:monospace; font-weight:bold; color:var(--primary-color);">${bill.id}</td>
+                    <td style="padding:12px; color:#475569; font-size:0.85rem;">${bill.date}</td>
+                    <td style="padding:12px; font-size:0.9rem; font-weight:600; color:#0f172a;">
+                        👤 ${bill.customerName || 'N/A'}<br>
+                        <span style="font-size:0.8rem; color:#64748b; font-weight:normal;">📞 ${bill.customerPhone || 'N/A'}</span>
+                    </td>
+                    <td style="padding:12px; font-size:0.85rem; font-weight:500; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${bill.summaryText}">${bill.summaryText}</td>
+                    <td style="padding:12px; text-align:right; font-weight:bold; color:#15803d;">₹${bill.totalBillValue}</td>
+                    <td style="padding:12px; text-align:right;">
+                        <button class="add-to-cart-btn" style="width:auto; padding:4px 10px; font-size:0.8rem; background-color:var(--primary-color);" onclick="retrieveAndPrintHistoricalBill('${bill.id}')">👁️ View Bill</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Action Trigger Module: Pull archived transaction copy and paint it back on the invoice screen frame with customer records
+        function retrieveAndPrintHistoricalBill(targetBillId) {
+            const targetRecord = window.billsArchiveStore.find(b => b.id === targetBillId);
+            if (!targetRecord) return;
+
+            // Repopulate customer details fields on the printed invoice frame
+            document.getElementById('invoice-cust-name').innerText = targetRecord.customerName || 'N/A';
+            document.getElementById('invoice-cust-phone').innerText = targetRecord.customerPhone || 'N/A';
+
+            const invoiceRowsContainer = document.getElementById('invoice-rows');
+            invoiceRowsContainer.innerHTML = '';
+
+
+            // Repopulate Outright Purchases Row Layouts
+            if (targetRecord.salesItemsClone && targetRecord.salesItemsClone.length > 0) {
+                appendInvoiceCategoryHeader(invoiceRowsContainer, `Commercial Purchase Ledger (Outright Sales) - ${targetRecord.id}`);
+                targetRecord.salesItemsClone.forEach(item => {
+                    appendInvoiceItemRow(invoiceRowsContainer, `${item.name} (x${item.quantity || 1})`, 'Sale Item', item.price);
+                });
+            }
+
+            // Repopulate Rental Agreement Row Layouts
+            if (targetRecord.rentalItemsClone && targetRecord.rentalItemsClone.length > 0) {
+                appendInvoiceCategoryHeader(invoiceRowsContainer, `Rental Agreement Term Assets - ${targetRecord.id}`);
+                targetRecord.rentalItemsClone.forEach(item => {
+                    appendInvoiceItemRow(invoiceRowsContainer, `${item.name} (x${item.quantity || 1})`, 'Rental Unit', item.price);
+                });
+            }
+
+            document.getElementById('invoice-grand-total').innerText = targetRecord.totalBillValue;
+            switchSection('invoice-section');
+        }
+        // Upgraded Bulletproof Daily Analysis Ledger Renderer
+        function renderTodaySalesDashboard() {
+            const tbody = document.getElementById('sales-ledger-rows');
+            if (!tbody) return; // Prevent element missing errors
+            
+            tbody.innerHTML = '';
+
+            let totalGross = 0;
+            let totalOutright = 0;
+            let totalRentals = 0;
+
+            // Target the working master bill archive data array directly
+            const activeArchive = window.billsArchiveStore || [];
+
+            activeArchive.forEach(bill => {
+                totalGross += bill.totalBillValue;
+                
+                // Calculate category splits directly from the inner item clones
+                if (bill.salesItemsClone) {
+                    bill.salesItemsClone.forEach(item => totalOutright += (item.price || 0));
+                }
+                if (bill.rentalItemsClone) {
+                    bill.rentalItemsClone.forEach(item => totalRentals += (item.price || 0));
+                }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="padding:12px; color:#64748b; font-weight:500;">${bill.date}</td>
+                    <td style="padding:12px; font-weight:600; color:#1e293b; max-width:400px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${bill.summaryText}">${bill.summaryText}</td>
+                    <td style="padding:12px; text-align:right; font-weight:bold; color:var(--primary-color)">₹${bill.totalBillValue}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            if(activeArchive.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8; padding:30px;">No invoices generated yet today.</td></tr>`;
+            }
+
+            // Target the scoreboard text spans safely
+            const grossSpan = document.getElementById('sales-gross-revenue');
+            const saleSpan = document.getElementById('sales-outright-revenue');
+            const rentSpan = document.getElementById('sales-rental-revenue');
+
+            if (grossSpan) grossSpan.innerText = totalGross;
+            if (saleSpan) saleSpan.innerText = totalOutright;
+            if (rentSpan) rentSpan.innerText = totalRentals;
+        }
+
+     
+
+
+        // Native Browser Print/PDF Download System Trigger
+        function downloadInvoicePDF() {
+            window.print(); // Triggers print dialog where user chooses "Save as PDF" or printer device
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
             renderCatalog();
         });
     </script>
+
 </body>
 </html>
 
