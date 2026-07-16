@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sai Harsha Traders</title>
+    <style>
+        :root {
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --sidebar-width: 260px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            width: var(--sidebar-width);
+            background-color: #0f172a;
+            color: #fff;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #sidebar.closed {
+            left: calc(-1 * var(--sidebar-width));
+        }
+
+        .profile-section {
+            padding: 20px;
+            background-color: #1e293b;
+            border-bottom: 1px solid #334155;
+            text-align: center;
+        }
+
+        .profile-section h3 {
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .nav-links li {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .nav-links li:hover, .nav-links li.active {
+            background-color: var(--secondary-color);
+        }
+
+        /* Main Content Area */
+        #main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: all 0.3s ease;
+            padding: 30px;
+        }
+
+        #main-content.expanded {
+            margin-left: 0;
+        }
+
+        /* Top Header Control */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .menu-btn {
+            font-size: 1.8rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+
+        .cart-toggle-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Branding */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .brand-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .brand-header p {
+            color: #64748b;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        /* App Sections Toggle */
+        .app-section {
+            display: none;
+        }
+
+        .app-section.active {
+            display: block;
+        }
+
+        /* Product Catalog Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-image {
+            height: 180px;
+            background-color: #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: bold;
+            overflow: hidden;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+        .product-info {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .price-tag {
+            font-size: 0.95rem;
+            margin: 4px 0;
+            color: #475569;
+        }
+
+        .mode-selector {
+            margin: 15px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .mode-label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .add-to-cart-btn:hover {
+            background-color: var(--primary-color);
+        }
+
+        /* Cart & Checkout View */
+        .cart-container {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .cart-section-title {
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin: 20px 0 10px 0;
+            color: var(--primary-color);
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .total-wrapper {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid var(--text-color);
+            text-align: right;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .gen-bill-btn {
+            background-color: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* Bill Invoice View */
+        .invoice-box {
+            background: #fff;
+            padding: 30px;
+            border: 1px solid #eee;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            max-width: 700px;
+            margin: 20px auto;
+        }
+
+        .invoice-table {
+            width: 100%;
+            line-height: inherit;
+            text-align: left;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .invoice-table th {
+            background: #f8fafc;
+            padding: 10px;
+            border-bottom: 2px solid #cbd5e1;
+        }
+
+        .invoice-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        /* Generic placeholders for remaining tabs */
+        .placeholder-view {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+            color: #64748b;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Collapsible Sidebar -->
+    <nav id="sidebar">
+        <div class="profile-section">
+            <h3>MAIN PROFILE</h3>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin-top: 5px;">Sai Harsha Traders</p>
+        </div>
+        <ul class="nav-links">
+            <li class="active" onclick="switchSection('home-section', this)">Home</li>
+            <li onclick="switchSection('update-section', this)">Update Items</li>
+            <li onclick="switchSection('bills-section', this)">Previous Bills</li>
+            <li onclick="switchSection('garage-section', this)">Garage</li>
+            <li onclick="switchSection('sales-section', this)">Today's Sales</li>
+        </ul>
+
+    </nav>
+
+    <!-- Main Workspace Area -->
+    <main id="main-content">
+        
+        <!-- Navigation & Utility Row -->
+        <div class="top-bar">
+            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+            <button class="cart-toggle-btn" onclick="switchSection('cart-section')">
+                🛒 Cart (<span id="cart-count">0</span>)
+            </button>
+        </div>
+
+        <!-- Corporate Branding -->
+        <header class="brand-header">
+            <h1>Sai Harsha Traders</h1>
+            <div id="contact-placeholder">
+                <p>[Contact Info Placeholder - Email & Phone options will render here dynamically]</p>
+            </div>
+        </header>
+
+        <!-- SECTION: HOME (Product Management Catalog) -->
+        <section id="home-section" class="app-section active">
+            <!-- Real-time Catalog Search Bar Row -->
+            <div style="margin-bottom: 25px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <input type="text" id="catalog-search-input" placeholder="🔍 Search materials, bricks, windows..." oninput="renderCatalog()" style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--secondary-color)'" onblur="this.style.borderColor='#cbd5e1'">
+            </div>
+            
+            <div class="products-grid" id="products-container">
+                <!-- Products dynamically inserted via JavaScript -->
+            </div>
+        </section>
+
+
+        <!-- SECTION: CART & CHECKOUT -->
+        <section id="cart-section" class="app-section">
+            <div class="cart-container">
+                <h2>Your Shopping Cart</h2>
+                
+                <h3 class="cart-section-title">Sale Items</h3>
+                <div id="sale-cart-items"></div>
+
+                <h3 class="cart-section-title">Rent Items</h3>
+                <div id="rent-cart-items"></div>
+
+                <div class="total-wrapper">
+                    Total Estimated Amount: ₹<span id="cart-total-amount">0</span>
+                </div>
+                <div style="text-align: right;">
+                    <button class="gen-bill-btn" onclick="generateUnifiedBill()">Generate Unified Bill</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: INVOICE GENERATOR -->
+        <section id="invoice-section" class="app-section">
+            <div class="invoice-box" id="print-area">
+                <h2 style="text-align: center; color: var(--primary-color);">INVOICE</h2>
+                <p style="text-align: center; font-weight: bold;">Sai Harsha Traders</p>
+                <hr style="margin: 15px 0;">
+                
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Item Details</th>
+                            <th>Type</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-rows"></tbody>
+                </table>
+
+                <div style="margin-top: 30px; text-align: right; font-size: 1.2rem;">
+                    <strong>Grand Total: ₹<span id="invoice-grand-total">0</span></strong>
+                </div>
+                <button class="add-to-cart-btn" style="margin-top: 20px;" onclick="switchSection('home-section')">Back to Home</button>
+            </div>
+        </section>
+
+                <!-- SECTION: UPDATE ITEMS DASHBOARD -->
+        <section id="update-section" class="app-section">
+            <div class="placeholder-view" style="text-align: left; max-width: 900px; margin: 0 auto; background: white; padding: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="color: var(--primary-color);">Shop Inventory Management</h2>
+                    <button class="gen-bill-btn" style="margin-top: 0; background-color: var(--secondary-color);" onclick="showAddItemModal()">+ Add New Shop Item</button>
+                </div>
+
+                <!-- Live Search Bar inside Inventory Manager -->
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="inventory-search-input" placeholder="🔍 Search shop items to update or remove..." oninput="renderInventoryList()" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem;">
+                </div>
+
+                <!-- Add/Edit Form Panel (Hidden by default) -->
+                <div id="item-form-panel" style="display: none; background: #f1f5f9; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid var(--secondary-color);">
+                    <h3 id="form-panel-title" style="margin-bottom: 15px; color: var(--primary-color);">Add New Item</h3>
+                    <input type="hidden" id="edit-product-id">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                        <div>
+                            <label style="font-weight: 600; font-size: 0.9rem;">Item Name</label>
+                            <input type="text" id="form-item-name" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px; margin-top:5px;">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; font-size: 0.9rem;">Upload Item Image</label>
+                            <input type="file" id="form-item-img-file" accept="image/*" style="width:100%; padding:6px; border:1px solid #cbd5e1; border-radius:4px; margin-top:5px; background: white;">
+                            <!-- Hidden storage tracker for keeping track of old uploaded files while editing -->
+                            <input type="hidden" id="form-item-img-base64">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; font-size: 0.9rem;">Outright Sale Price (₹)</label>
+                            <input type="number" id="form-item-sale" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px; margin-top:5px;">
+                        </div>
+                        <div>
+                            <label style="font-weight: 600; font-size: 0.9rem;">Rental Price (₹)</label>
+                            <input type="number" id="form-item-rent" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px; margin-top:5px;">
+                        </div>
+                    </div>
+                    <div style="text-align: right; display: flex; justify-content: flex-end; gap: 10px;">
+                        <button class="remove-btn" style="background:#e2e8f0; color:#475569; padding:8px 15px; border-radius:4px; font-weight: bold;" onclick="hideItemFormPanel()">Cancel</button>
+                        <button class="gen-bill-btn" style="margin-top:0; padding:8px 20px;" onclick="saveShopItem()">Save Asset Specifications</button>
+                    </div>
+                </div>
+
+                <!-- Tabular Database View -->
+                <div style="overflow-x: auto;">
+                    <table class="invoice-table" style="margin-top: 0; width: 100%;">
+                        <thead>
+                            <tr style="background: #f1f5f9;">
+                                <th style="padding: 10px; text-align: left;">Item</th>
+                                <th style="padding: 10px; text-align: left;">Sale Price</th>
+                                <th style="padding: 10px; text-align: left;">Rent Price</th>
+                                <th style="padding: 10px; text-align: right;">Management Options</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventory-table-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION: PREVIOUS BILLS PLACEHOLDER -->
+        <section id="bills-section" class="app-section">
+            <div class="placeholder-view">
+                <h2>Archive: Previous Invoices</h2>
+                <p style="margin-top: 10px;">Historical ledger lookup table for all systematically finalized receipts.</p>
+            </div>
+        </section>
+
+                <!-- SECTION: GARAGE (STOCK COUNT MANAGEMENT) -->
+        <section id="garage-section" class="app-section">
+            <div class="placeholder-view" style="text-align: left; max-width: 900px; margin: 0 auto; background: white; padding: 30px;">
+                <h2 style="color: var(--primary-color); margin-bottom: 20px;">Garage Stock Control</h2>
+                <p style="color: #64748b; margin-bottom: 20px; font-size: 0.95rem;">Track and reload warehouse materials physical counts below. Setup base catalog and pricing metrics inside the <em>Update Items</em> dashboard.</p>
+                
+                <!-- Stock Update Inline Adjustment Controller -->
+                <div id="garage-stock-panel" style="background: #f1f5f9; padding: 20px; border-radius: 8px; margin-bottom: 25px; border-left: 5px solid #10b981;">
+                    <h3 style="margin-bottom: 15px; color: #0f172a; font-size: 1.1rem;">Update Warehouse Physical Stock</h3>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+                        <div style="flex: 2; min-width: 200px;">
+                            <label style="font-weight: 600; font-size: 0.9rem;">Select Inventory Item</label>
+                            <select id="garage-item-dropdown" style="width:100%; padding:9px; border:1px solid #cbd5e1; border-radius:4px; margin-top:5px; background: white;"></select>
+                        </div>
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="font-weight: 600; font-size: 0.9rem;">Available Quantity</label>
+                            <input type="number" id="garage-stock-qty" min="0" placeholder="e.g. 50" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px; margin-top:5px;">
+                        </div>
+                        <button class="gen-bill-btn" style="margin-top:0; padding:9px 25px; background-color: #10b981;" onclick="saveGarageStockCount()">Update Stock Levels</button>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="invoice-table" style="margin-top: 0; width: 100%;">
+                        <thead>
+                            <tr style="background: #f1f5f9;">
+                                <th style="padding: 10px; text-align: left;">Item Description</th>
+                                <th style="padding: 10px; text-align: left;">Current Garage Stock Volume</th>
+                                <th style="padding: 10px; text-align: left;">Status Indication</th>
+                            </tr>
+                        </thead>
+                        <tbody id="garage-table-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION: TODAY'S SALES -->
+        <section id="sales-section" class="app-section">
+            <div class="placeholder-view">
+                <h2>Daily Sales Ledger Matrix</h2>
+                <p style="margin-top: 10px;">Calculated financial operational monitoring workspace for current daily values.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- JAVASCRIPT LOGIC ENGINE -->
+      <script>
+                      // Main live mutable data store engine configured for images instead of emojis
+        let productsDB = [
+            { id: 1, name: 'Cement Bricks (Batch of 100)', salePrice: 4500, rentPrice: 600, imageSrc: 'https://unsplash.com', stockQuantity: 45 },
+            { id: 2, name: 'Premium PVC Windows', salePrice: 3200, rentPrice: 450, imageSrc: 'https://unsplash.com', stockQuantity: 12 },
+            { id: 3, name: 'Steel Reinforcement Bars (Rebar)', salePrice: 7500, rentPrice: 1200, imageSrc: 'https://unsplash.com', stockQuantity: 0 },
+            { id: 4, name: 'Concrete Mixer Heavy Machinery', salePrice: 85000, rentPrice: 4500, imageSrc: 'https://unsplash.com', stockQuantity: 3 }
+        ];
+
+        // Active State Storage Engine
+        let userCart = [];
+
+        // Application Layout Mechanics
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            sidebar.classList.toggle('closed');
+            mainContent.classList.toggle('expanded');
+        }
+
+        function switchSection(sectionId, element = null) {
+            document.querySelectorAll('.app-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+
+            if (element) {
+                document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
+                element.classList.add('active');
+            }
+            
+            if(sectionId === 'home-section') {
+                renderCatalog();
+            } else if(sectionId === 'cart-section') {
+                renderCartUI();
+            } else if(sectionId === 'update-section') {
+                renderInventoryList();
+            } else if(sectionId === 'garage-section') {
+                renderGaragePanel();
+            }
+        }
+
+
+        // Garage Section Rendering and Management Logic
+        function renderGaragePanel() {
+            const tbody = document.getElementById('garage-table-rows');
+            const dropdown = document.getElementById('garage-item-dropdown');
+            tbody.innerHTML = '';
+            dropdown.innerHTML = '';
+
+            productsDB.forEach(item => {
+                // Handle missing stock variables gracefully as zero quantity
+                if (item.stockQuantity === undefined || item.stockQuantity === null) {
+                    item.stockQuantity = 0;
+                }
+
+                // Append matching options inside dropdown list selection container
+                const option = document.createElement('option');
+                option.value = item.id;
+                option.innerText = item.name;
+                dropdown.appendChild(option);
+
+                // Build Table UI Elements natively
+                const isOutOfStock = item.stockQuantity === 0;
+                const statusBadge = isOutOfStock 
+                    ? `<span style="font-size:0.85rem; padding:3px 8px; border-radius:4px; font-weight:bold; background:#fee2e2; color:#b91c1c;">🚫 Out of Stock</span>`
+                    : `<span style="font-size:0.85rem; padding:3px 8px; border-radius:4px; font-weight:bold; background:#dcfce7; color:#15803d;">✅ Available</span>`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:600; padding:12px;">${item.defaultImg || '📦'} ${item.name}</td>
+                    <td style="padding:12px; font-weight:bold; font-size:1.05rem;">${item.stockQuantity} items</td>
+                    <td style="padding:12px;">${statusBadge}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function saveGarageStockCount() {
+            const itemId = parseInt(document.getElementById('garage-item-dropdown').value);
+            const qtyVal = parseInt(document.getElementById('garage-stock-qty').value);
+
+            if(isNaN(qtyVal) || qtyVal < 0) {
+                alert('Please submit a valid non-negative physical stock count quantity!');
+                return;
+            }
+
+            const item = productsDB.find(p => p.id === itemId);
+            if(item) {
+                item.stockQuantity = qtyVal;
+                document.getElementById('garage-stock-qty').value = '';
+                renderGaragePanel();
+                alert(`Stock configurations updated successfully for ${item.name}!`);
+            }
+        }
+
+
+                // Home View Catalog Matrix Rendering with Live Search Filtering Controls
+        function renderCatalog() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            if(productsDB.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#64748b;">No products active in catalog database. Go to Update Items tab to add stock.</div>';
+                return;
+            }
+
+            // Extract keywords entered into the homepage search bar element
+            const searchInput = document.getElementById('catalog-search-input');
+            const searchKeyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            // Filter products based on typed query metrics
+            const filteredProducts = productsDB.filter(product => 
+                product.name.toLowerCase().includes(searchKeyword)
+            );
+
+            if(filteredProducts.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#94a3b8; font-weight:500;">No items found matching your catalog search criteria.</div>';
+                return;
+            }
+
+            filteredProducts.forEach(product => {
+                const isOutOfStock = product.stockQuantity === undefined || product.stockQuantity === null || product.stockQuantity <= 0;
+                const isRentDisabled = product.rentPrice === undefined || product.rentPrice === null || isNaN(product.rentPrice) || product.rentPrice <= 0;
+                
+                const actionButton = isOutOfStock 
+                    ? `<button class="add-to-cart-btn" style="background-color: #ef4444; cursor: not-allowed; width: 100%;" disabled>❌ No Stock Available</button>`
+                    : `<button class="add-to-cart-btn" style="width: 100%;" onclick="addItemToCart(${product.id})">Add Item to Basket</button>`;
+
+                const imageTag = product.imageSrc 
+                    ? `<img src="${product.imageSrc}" alt="${product.name}">` 
+                    : `<div style="padding:20px; text-align:center; color:#94a3b8;">No Image Provided</div>`;
+
+                const rentPriceText = isRentDisabled ? `<span style="color:#ef4444; font-weight:bold;">Not for Rent</span>` : `₹${product.rentPrice}`;
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                if(isOutOfStock) card.style.opacity = "0.75";
+                
+                card.innerHTML = `
+                    <div class="product-image">${imageTag}</div>
+                    <div class="product-info">
+                        <div>
+                            <h3 class="product-title" style="margin-bottom: 12px;">${product.name}</h3>
+                            
+                            <div style="display: flex; justify-content: space-between; gap: 10px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px;">
+                                <p class="price-tag" style="margin:0; font-size:0.85rem;"><strong>Purchase:</strong><br><span style="color:#1e3a8a; font-weight:bold; font-size:1rem;">₹${product.salePrice}</span></p>
+                                <p class="price-tag" style="margin:0; font-size:0.85rem; text-align:right;"><strong>Rent Rate:</strong><br><span style="font-size:1rem;">${rentPriceText}</span></p>
+                            </div>
+
+                            <p style="font-size:0.8rem; font-weight:600; color:${isOutOfStock ? '#ef4444' : '#10b981'}; margin-top:5px; margin-bottom: 15px;">
+                                ${isOutOfStock ? 'Status: Sold Out' : `Garage Stock: ${product.stockQuantity} remaining`}
+                            </p>
+                        </div>
+                        <div>
+                            <div class="mode-selector" style="${isOutOfStock ? 'pointer-events:none; opacity:0.5;' : ''} margin-bottom: 15px;">
+                                <label class="mode-label">
+                                    <input type="radio" name="mode-${product.id}" value="sale" checked ${isOutOfStock ? 'disabled' : ''}> Sale
+                                </label>
+                                <label class="mode-label" style="margin-left: 15px; ${isRentDisabled ? 'opacity:0.4; cursor:not-allowed;' : ''}">
+                                    <input type="radio" name="mode-${product.id}" value="rent" ${isOutOfStock || isRentDisabled ? 'disabled' : ''}> Rent
+                                </label>
+                            </div>
+
+                            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 15px; gap: 5px; ${isOutOfStock ? 'display:none;' : ''}">
+                                <button type="button" style="width:35px; height:35px; border:1px solid #cbd5e1; background:#f1f5f9; font-weight:bold; font-size:1.2rem; cursor:pointer; border-radius:4px;" onclick="adjustQuantityValue(${product.id}, -1)">-</button>
+                                <input type="number" id="qty-input-${product.id}" value="1" min="1" max="${product.stockQuantity}" style="width:65px; height:35px; text-align:center; font-weight:bold; border:1px solid #cbd5e1; border-radius:4px; font-size:1rem;" onchange="validateDirectQtyInput(this, ${product.stockQuantity})">
+                                <button type="button" style="width:35px; height:35px; border:1px solid #cbd5e1; background:#f1f5f9; font-weight:bold; font-size:1.2rem; cursor:pointer; border-radius:4px;" onclick="adjustQuantityValue(${product.id}, 1)">+</button>
+                            </div>
+
+                            ${actionButton}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+
+
+
+        // Operational Quantity Incrementor Control Functions
+        function adjustQuantityValue(productId, changeAmount) {
+            const inputField = document.getElementById(`qty-input-${productId}`);
+            let currentVal = parseInt(inputField.value) || 1;
+            const maxLimit = parseInt(inputField.max);
+
+            currentVal += changeAmount;
+            if (currentVal < 1) currentVal = 1;
+            if (currentVal > maxLimit) currentVal = maxLimit;
+
+            inputField.value = currentVal;
+        }
+
+        function validateDirectQtyInput(inputElement, maxStockLimit) {
+            let userEnteredVal = parseInt(inputElement.value) || 1;
+            if (userEnteredVal < 1) userEnteredVal = 1;
+            if (userEnteredVal > maxStockLimit) {
+                alert(`⚠️ Cannot exceed max Garage stock limit of ${maxStockLimit} units.`);
+                userEnteredVal = maxStockLimit;
+            }
+            inputElement.value = userEnteredVal;
+        }
+
+
+                // Inventory Management Panel Rendering with Image Thumbnails
+        function renderInventoryList() {
+            const tbody = document.getElementById('inventory-table-rows');
+            const searchKeyword = document.getElementById('inventory-search-input').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            const filteredData = productsDB.filter(item => 
+                item.name.toLowerCase().includes(searchKeyword)
+            );
+
+            if(filteredData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#94a3b8; padding: 20px;">No items match search criteria.</td></tr>`;
+                return;
+            }
+
+                        filteredData.forEach(item => {
+                const imgPreview = item.imageSrc 
+                    ? `<img src="${item.imageSrc}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; margin-right:10px; vertical-align:middle;">` 
+                    : `<div style="width:40px; height:40px; background:#cbd5e1; display:inline-block; margin-right:10px; vertical-align:middle; border-radius:4px;"></div>`;
+
+                const displayRentLabel = (item.rentPrice === undefined || item.rentPrice === null || isNaN(item.rentPrice)) 
+                    ? `<span style="color:#ef4444; font-style:italic;">Sale Only</span>` 
+                    : `₹${item.rentPrice}`;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:600; padding:10px;">${imgPreview}${item.name}</td>
+                    <td style="padding:10px;">₹${item.salePrice}</td>
+                    <td style="padding:10px;">${displayRentLabel}</td>
+                    <td style="text-align: right; padding:10px;">
+                        <button class="add-to-cart-btn" style="width:auto; padding:5px 12px; margin-right:8px; display:inline-block; font-size:0.85rem;" onclick="loadItemToEdit(${item.id})">✏️ Edit</button>
+                        <button class="remove-btn" style="font-size:0.85rem; padding:5px 8px; cursor:pointer;" onclick="removeShopItem(${item.id})">🗑️ Remove</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+
+        function showAddItemModal() {
+            document.getElementById('item-form-panel').style.display = 'block';
+            document.getElementById('form-panel-title').innerText = "Add New Shop Item";
+            document.getElementById('edit-product-id').value = "";
+            document.getElementById('form-item-name').value = "";
+            document.getElementById('form-item-img-file').value = ""; // Reset browse field
+            document.getElementById('form-item-img-base64').value = ""; // Reset hidden string
+            document.getElementById('form-item-sale').value = "";
+            document.getElementById('form-item-rent').value = "";
+        }
+
+        function hideItemFormPanel() {
+            document.getElementById('item-form-panel').style.display = 'none';
+        }
+
+        function loadItemToEdit(id) {
+            const item = productsDB.find(p => p.id === id);
+            if(!item) return;
+
+            document.getElementById('item-form-panel').style.display = 'block';
+            document.getElementById('form-panel-title').innerText = `Update: ${item.name}`;
+            document.getElementById('edit-product-id').value = item.id;
+            document.getElementById('form-item-name').value = item.name;
+            document.getElementById('form-item-img-file').value = ""; // Clear file selector input
+            document.getElementById('form-item-img-base64').value = item.imageSrc || ""; // Cache original source path
+            document.getElementById('form-item-sale').value = item.salePrice;
+            document.getElementById('form-item-rent').value = item.rentPrice;
+        }
+
+
+        function saveShopItem() {
+            const idVal = document.getElementById('edit-product-id').value;
+            const nameVal = document.getElementById('form-item-name').value.trim();
+            const saleVal = parseFloat(document.getElementById('form-item-sale').value);
+            
+            // Capture raw input first to evaluate if it's completely blank
+            const rawRentInput = document.getElementById('form-item-rent').value.trim();
+            const rentVal = rawRentInput === "" ? null : parseFloat(rawRentInput);
+            
+            const fileInput = document.getElementById('form-item-img-file');
+            const hiddenCachedImg = document.getElementById('form-item-img-base64').value;
+
+            // Only Name and Sale Price are absolutely required now
+            if(!nameVal || isNaN(saleVal)) {
+                alert('Please input a valid name and outright sale price configuration!');
+                return;
+            }
+
+
+            // Internal modular saving block executor
+            function commitRecordToDatabase(compiledImageString) {
+                if(idVal) {
+                    const index = productsDB.findIndex(p => p.id == idVal);
+                    if(index !== -1) {
+                        productsDB[index].name = nameVal;
+                        productsDB[index].imageSrc = compiledImageString;
+                        productsDB[index].salePrice = saleVal;
+                        productsDB[index].rentPrice = rentVal;
+                    }
+                } else {
+                    const newItem = {
+                        id: Date.now(),
+                        name: nameVal,
+                        salePrice: saleVal,
+                        rentPrice: rentVal,
+                        imageSrc: compiledImageString,
+                        stockQuantity: 0 // Initialize at 0; adjust later inside Garage dashboard
+                    };
+                    productsDB.push(newItem);
+                }
+                hideItemFormPanel();
+                renderInventoryList();
+            }
+
+            // Check if user selected a fresh file via browse button
+            if (fileInput.files && fileInput.files[0]) {
+                const localReader = new FileReader();
+                localReader.onload = function(event) {
+                    commitRecordToDatabase(event.target.result); // Save compiled base64 data
+                };
+                localReader.readAsDataURL(fileInput.files[0]);
+            } else {
+                // If no new file was uploaded, keep using the existing image path
+                commitRecordToDatabase(hiddenCachedImg);
+            }
+        }
+
+
+
+        function removeShopItem(id) {
+            if(confirm('Are you sure you want to remove this item?')) {
+                productsDB = productsDB.filter(p => p.id !== id);
+                userCart = userCart.filter(c => c.id !== id);
+                updateCartCounterBadge();
+                renderInventoryList();
+            }
+        }
+
+        function addItemToCart(productId) {
+            const product = productsDB.find(p => p.id === productId);
+            if(!product) return;
+
+            if (product.stockQuantity === undefined || product.stockQuantity === null || product.stockQuantity <= 0) {
+                alert(`⚠️ No stock available in Garage for: ${product.name}`);
+                return;
+            }
+            
+            // Get quantity specified inside the dynamic counter input container
+            const chosenQtyInput = document.getElementById(`qty-input-${productId}`);
+            const targetQuantity = chosenQtyInput ? (parseInt(chosenQtyInput.value) || 1) : 1;
+
+            if (targetQuantity > product.stockQuantity) {
+                alert(`⚠️ Requested quantity exceeds available Garage stock.`);
+                return;
+            }
+            
+            const selectedMode = document.querySelector(`input[name="mode-${productId}"]:checked`).value;
+            const singleUnitPrice = selectedMode === 'sale' ? product.salePrice : product.rentPrice;
+            
+            const cartItem = {
+                cartId: Date.now() + Math.random().toString(36).substr(2, 5), 
+                id: product.id,
+                name: product.name,
+                transactionMode: selectedMode,
+                quantity: targetQuantity,
+                unitPrice: singleUnitPrice,
+                price: singleUnitPrice * targetQuantity
+            };
+
+            userCart.push(cartItem);
+            updateCartCounterBadge();
+            
+            // Reset local home screen counter box selection to 1 state element
+            if(chosenQtyInput) chosenQtyInput.value = "1";
+            
+            alert(`✅ Added (${targetQuantity}x) ${product.name} to cart for ${selectedMode}!`);
+        }
+
+
+
+        function updateCartCounterBadge() {
+            document.getElementById('cart-count').innerText = userCart.length;
+        }
+
+        function removeItemFromCart(cartId) {
+            userCart = userCart.filter(item => item.cartId !== cartId);
+            updateCartCounterBadge();
+            renderCartUI();
+        }
+
+        function renderCartUI() {
+            const saleContainer = document.getElementById('sale-cart-items');
+            const rentContainer = document.getElementById('rent-cart-items');
+            
+            saleContainer.innerHTML = '';
+            rentContainer.innerHTML = '';
+            
+            let accumulatedCostValue = 0;
+
+            userCart.forEach(item => {
+                accumulatedCostValue += item.price;
+                const itemQtyCount = item.quantity || 1;
+                
+                const rowItem = document.createElement('div');
+                rowItem.className = 'cart-item';
+                rowItem.innerHTML = `
+                    <span>${item.name} <strong style="color:var(--secondary-color);">x${itemQtyCount}</strong></span>
+                    <span>₹${item.price} <button class="remove-btn" onclick="removeItemFromCart('${item.cartId}')" style="margin-left:15px;">✕</button></span>
+                `;
+
+                if (item.transactionMode === 'sale') {
+                    saleContainer.appendChild(rowItem);
+                } else {
+                    rentContainer.appendChild(rowItem);
+                }
+            });
+
+            if(saleContainer.children.length === 0) saleContainer.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No commercial sales items chosen.</p>';
+            if(rentContainer.children.length === 0) rentContainer.innerHTML = '<p style="color:#94a3b8; font-size:0.9rem;">No rental items active in configuration.</p>';
+
+            document.getElementById('cart-total-amount').innerText = accumulatedCostValue;
+        }
+
+
+        function generateUnifiedBill() {
+            if (userCart.length === 0) {
+                alert('Your shopping cart is completely empty!');
+                return;
+            }
+
+            const invoiceRowsContainer = document.getElementById('invoice-rows');
+            invoiceRowsContainer.innerHTML = '';
+            
+            const salesItems = userCart.filter(i => i.transactionMode === 'sale');
+            const rentalItems = userCart.filter(i => i.transactionMode === 'rent');
+            
+            let finalCombinedBillSum = 0;
+
+            if (salesItems.length > 0) {
+                appendInvoiceCategoryHeader(invoiceRowsContainer, 'Commercial Purchase Ledger (Outright Sales)');
+                salesItems.forEach(item => {
+                    finalCombinedBillSum += item.price;
+                    const displayLabel = `${item.name} (x${item.quantity || 1})`;
+                    appendInvoiceItemRow(invoiceRowsContainer, displayLabel, 'Sale Item', item.price);
+                });
+            }
+
+            if (rentalItems.length > 0) {
+                appendInvoiceCategoryHeader(invoiceRowsContainer, 'Rental Agreement Term Assets');
+                rentalItems.forEach(item => {
+                    finalCombinedBillSum += item.price;
+                    const displayLabel = `${item.name} (x${item.quantity || 1})`;
+                    appendInvoiceItemRow(invoiceRowsContainer, displayLabel, 'Rental Unit', item.price);
+                });
+            }
+
+            document.getElementById('invoice-grand-total').innerText = finalCombinedBillSum;
+            switchSection('invoice-section');
+        }
+
+        function appendInvoiceCategoryHeader(targetTableBody, headerTitle) {
+            const headerRow = document.createElement('tr');
+            headerRow.innerHTML = `<td colspan="3" style="background:#e2e8f0; font-weight:bold; color:var(--primary-color); font-size:0.9rem;">${headerTitle}</td>`;
+            targetTableBody.appendChild(headerRow);
+        }
+
+        function appendInvoiceItemRow(targetTableBody, name, typeLabel, absoluteCost) {
+            const bodyRow = document.createElement('tr');
+            bodyRow.innerHTML = `
+                <td>${name}</td>
+                <td><span style="font-size:0.85rem; padding:3px 8px; border-radius:4px; font-weight:bold; background:${typeLabel==='Sale Item'?'#dcfce7':'#fee2e2'}; color:${typeLabel==='Sale Item'?'#15803d':'#b91c1c'};">${typeLabel}</span></td>
+                <td>₹${absoluteCost}</td>
+            `;
+            targetTableBody.appendChild(bodyRow);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCatalog();
+        });
+    </script>
+</body>
+</html>
+
