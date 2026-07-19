@@ -1114,6 +1114,7 @@
             }
         }
 
+        // Mobile-Optimized Horizontal List Catalog Renderer with Large Touch Buttons
         function renderCatalog() {
             const container = document.getElementById('products-container');
             if(!container) return;
@@ -1141,6 +1142,7 @@
             }
 
             filteredProducts.forEach(product => {
+                // FIXED CRITICAL GLITCH: Map checks correctly to product.stockQuantity variable name
                 const isOutOfStock = product.stockQuantity === undefined || product.stockQuantity === null || product.stockQuantity <= 0;
                 const isRentDisabled = product.rentPrice === undefined || product.rentPrice === null || isNaN(product.rentPrice) || product.rentPrice <= 0;
                 
@@ -1172,10 +1174,12 @@
                 if(isOutOfStock) card.style.opacity = "0.8";
                 
                 card.innerHTML = `
+                    <!-- Small square left-aligned image box -->
                     <div style="width: 100px; height: 100px; flex-shrink: 0; background: #f1f5f9; border-radius: 6px; overflow: hidden;">
                         ${imageTag}
                     </div>
                     
+                    <!-- Middle Core Details Column -->
                     <div style="flex: 2; display: flex; flex-direction: column; gap: 8px; text-align: left;">
                         <h3 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: #0f172a;">${product.name}</h3>
                         
@@ -1192,8 +1196,10 @@
                         </div>
                     </div>
 
+                    <!-- Right-Aligned Action Control Wrapper -->
                     <div style="display: flex; flex-direction: row; align-items: center; gap: 15px; background: #f8fafc; border: 1px solid #f1f5f9; padding: 10px 15px; border-radius: 8px; flex-shrink: 0;">
                         
+                        <!-- Premium Segmented Mobile-Friendly Mode Switcher Buttons -->
                         <div style="display: flex; background: #e2e8f0; border-radius: 6px; padding: 3px; gap: 2px; ${isOutOfStock ? 'pointer-events:none; opacity:0.5;' : ''}">
                             <button id="seg-sale-${product.id}" type="button" style="border: none; padding: 8px 14px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; background: var(--primary-color); color: white;" onclick="toggleMobileTransactionMode(${product.id}, 'sale')">
                                 Buy
@@ -1204,6 +1210,7 @@
                             <input type="hidden" id="mobile-mode-input-${product.id}" value="sale">
                         </div>
 
+                        <!-- Quantity picker with hidden browser default arrow spinners -->
                         <div style="display: flex; align-items: center; gap: 8px; border-left: 1px dashed #cbd5e1; padding-left: 15px; ${isOutOfStock ? 'display:none;' : ''}">
                             <div style="display: flex; align-items: center; background: white; border: 1px solid #cbd5e1; border-radius: 4px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
                                 <button type="button" style="width:28px; height:28px; border:none; background:#f1f5f9; font-weight:bold; font-size:1rem; cursor:pointer;" onclick="adjustQuantityValue(${product.id}, -1)">-</button>
@@ -1223,6 +1230,7 @@
                 container.appendChild(card);
             });
         }
+
 
         function adjustQuantityValue(productId, changeAmount) {
             const inputField = document.getElementById(`qty-input-${productId}`);
