@@ -916,13 +916,11 @@
         // Initialize Firebase Engines
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-
-        // Global Application Working Memory States
         window.productsDB = [];
         window.userCart = [];
         window.salesHistory = [];
         window.billsArchiveStore = [];
-        window.isUserAuthenticatedAdmin = false;
+       
     
         let salesHistory = [];
         let sidebarTimeout = null;
