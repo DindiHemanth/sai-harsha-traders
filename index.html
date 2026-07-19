@@ -449,34 +449,17 @@
             <p style="font-size: 0.85rem; font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; color: #cbd5e1; margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase;">Sai Harsha Traders</p>
         </div>
 
-        <!-- Secured Navigation Links Menu Grid -->
+        <!-- Store Navigation Links Menu Grid -->
         <ul class="nav-links">
             <li class="active" onclick="switchSection('home-section', this)">Home</li>
-            <!-- Administrative Restricted Panels Hidden by default -->
-            <li class="admin-only-tab" onclick="switchSection('update-section', this)" style="display: none;">⚙️ Update Items</li>
-            <li class="admin-only-tab" onclick="switchSection('sales-section', this)" style="display: none;">📊 Today's Sales</li>
-            <li class="admin-only-tab" onclick="switchSection('bills-section', this)" style="display: none;">📋 Previous Bills</li>
-            <li class="admin-only-tab" onclick="switchSection('garage-section', this)" style="display: none;">🏢 Garage Stock</li>
+            <li class="admin-only-tab" onclick="switchSection('update-section', this)">⚙️ Update Items</li>
+            <li class="admin-only-tab" onclick="switchSection('sales-section', this)">📊 Today's Sales</li>
+            <li class="admin-only-tab" onclick="switchSection('bills-section', this)">📋 Previous Bills</li>
+            <li class="admin-only-tab" onclick="switchSection('garage-section', this)">🏢 Garage Stock</li>
         </ul>
 
-        <!-- Sticky Admin Lock Anchor Button sitting at the base of the sidebar links list -->
-        <div class="no-print" style="margin-top: auto; padding: 15px; border-top: 1px solid #1e293b;">
-            <button id="admin-gate-btn" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; color: #94a3b8; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;" onclick="openAdminPasswordModal()">🔒 Admin Login</button>
-        </div>
 
-        <!-- Secure Password Overlay Dashboard (Hidden by default) -->
-        <div id="admin-auth-overlay" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 9999; align-items: center; justify-content: center;">
-            <div style="background: white; padding: 30px; border-radius: 12px; max-width: 360px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 10px;">🔐</div>
-                <h3 style="color: var(--primary-color); margin-bottom: 8px; font-size:1.3rem;">Owner Authentication</h3>
-                <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 20px;">Please enter your secret dashboard PIN to unlock store records.</p>
-                <input type="password" id="admin-secret-pin" placeholder="Enter Admin Passcode" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 15px; outline: none; box-sizing: border-box;">
-                <div style="display: flex; gap: 10px;">
-                    <button type="button" style="flex:1; padding: 10px; background: #e2e8f0; border: none; border-radius: 6px; color: #475569; font-weight: 600; cursor: pointer;" onclick="closeAdminPasswordModal()">Cancel</button>
-                    <button type="button" style="flex:2; padding: 10px; background: var(--primary-color); border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;" onclick="verifyAdminPasscodeCredentials()">Unlock Console</button>
-                </div>
-            </div>
-        </div>
+        
     </nav>
 
     <!-- Main Workspace Area -->
@@ -922,59 +905,16 @@
         window.billsArchiveStore = [];
         let salesHistory = [];
         let sidebarTimeout = null;
-        const ADMIN_SECRET_PASSCODE_KEY = "Mohan9247";
+       
 
-        // Admin Modal Interface Management Logic
-        function openAdminPasswordModal() {
-            if (isUserAuthenticatedAdmin) {
-                logOutAdminSecurely();
-                return;
-            }
-            document.getElementById('admin-auth-overlay').style.display = 'flex';
-            document.getElementById('admin-secret-pin').value = '';
-            document.getElementById('admin-secret-pin').focus();
-            document.getElementById('admin-secret-pin').onkeydown = function(e) {
-                if (e.key === 'Enter') verifyAdminPasscodeCredentials();
-            };
-        }
+        
 
         function closeAdminPasswordModal() {
             document.getElementById('admin-auth-overlay').style.display = 'none';
             document.getElementById('admin-secret-pin').value = '';
         }
 
-        function verifyAdminPasscodeCredentials() {
-            const enteredPin = document.getElementById('admin-secret-pin').value;
-            if (enteredPin === ADMIN_SECRET_PASSCODE_KEY) {
-                window.isUserAuthenticatedAdmin = true;
-                alert('🔓 Access Granted! Owner options are now unlocked.');
-                document.querySelectorAll('.admin-only-tab').forEach(tab => tab.style.display = 'block');
-                const gateBtn = document.getElementById('admin-gate-btn');
-                gateBtn.innerHTML = "🔓 Lock Admin Console";
-                gateBtn.style.background = "#ef4444";
-                gateBtn.style.color = "white";
-                gateBtn.style.borderColor = "#ef4444";
-                closeAdminPasswordModal();
-                startSidebarIdleTimer();
-            } else {
-                alert('❌ Access Denied: Incorrect admin passcode. Please try again.');
-                document.getElementById('admin-secret-pin').value = '';
-                document.getElementById('admin-secret-pin').focus();
-            }
-        }
-
-        function logOutAdminSecurely() {
-            window.isUserAuthenticatedAdmin = false;
-            alert('🔒 Admin Console Locked.');
-            document.querySelectorAll('.admin-only-tab').forEach(tab => tab.style.display = 'none');
-            switchSection('home-section');
-            const gateBtn = document.getElementById('admin-gate-btn');
-            gateBtn.innerHTML = "🔒 Admin Login";
-            gateBtn.style.background = "#1e293b";
-            gateBtn.style.color = "#94a3b8";
-            gateBtn.style.borderColor = "#334155";
-        }
-
+       
 
         function startSidebarIdleTimer() {
             clearSidebarIdleTimer();
