@@ -920,8 +920,6 @@
         window.userCart = [];
         window.salesHistory = [];
         window.billsArchiveStore = [];
-       
-    
         let salesHistory = [];
         let sidebarTimeout = null;
         let isUserAuthenticatedAdmin = false;
@@ -1033,7 +1031,7 @@
         let previousSectionId = 'home-section';
         let currentSectionId = 'home-section';
 
-        function switchSection(sectionId, element = null) {
+        async function switchSection(sectionId, element = null) {
             closeSidebarAutomatically();
             if (sectionId !== currentSectionId) {
                 previousSectionId = currentSectionId;
@@ -1054,6 +1052,10 @@
                     floatingCartBtn.style.display = 'flex';
                 }
             }
+            
+            // Fetch fresh database states on-demand before rendering views
+            await fetchStoreMetadataFromCloud();
+
             if(sectionId === 'home-section') renderCatalog();
             else if(sectionId === 'cart-section') renderCartUI();
             else if(sectionId === 'update-section') renderInventoryList();
@@ -1062,13 +1064,6 @@
             else if(sectionId === 'bills-section') renderBillsArchivalLedger();
         }
 
-        function goBackToPreviousSection() {
-            if (currentSectionId === 'update-section' || currentSectionId === 'sales-section' || currentSectionId === 'bills-section' || currentSectionId === 'garage-section') {
-                switchSection('home-section');
-            } else {
-                switchSection(previousSectionId);
-            }
-        }
 
         function renderGaragePanel() {
             const tbody = document.getElementById('garage-table-rows');
@@ -1362,18 +1357,17 @@ function hideItemFormPanel() {
                     imageSrc: compiledImageString
                 };
 
-                if(idVal) {
-                    // Update matching document entry directly in the cloud collection
-                    db.collection("products").doc(idVal).update(recordData)
-                    .then(() => { alert('⚡ Item updated successfully in cloud database!'); })
-                    .catch(err => alert('Update Error: ' + err.message));
-                } else {
-                    // Create new document row initialized with 0 base warehouse stock count
-                    recordData.stockQuantity = 0;
-                    db.collection("products").add(recordData)
-                    .then(() => { alert('🎉 New product uploaded to storefront ledger!'); })
-                    .catch(err => alert('Upload Error: ' + err.message));
-                }
+                db.collection("products").doc(itemId).update({
+                    stockQuantity: firebase.firestore.FieldValue.increment(qtyVal)
+                })
+                .then(async () => {
+                    document.getElementById('garage-stock-qty').value = '';
+                    // Add these two execution steps:
+                    await fetchStoreMetadataFromCloud();
+                    renderGaragePanel();
+                    alert('📦 Stock Volume successfully synchronized!');
+                });
+
                 hideItemFormPanel();
             }
 
@@ -1925,20 +1919,16 @@ if (selectedMode === 'sale') {
             }
         }
 
-               window.addEventListener('DOMContentLoaded', () => {
-            const headerBar = document.querySelector('.brand-header');
-            const mainContent = document.getElementById('main-content');
-
-            if (headerBar) headerBar.style.left = '0';
-            if (mainContent) mainContent.classList.add('expanded');
-
-            // 1. REAL-TIME PRODUCTS LISTENER: Watches database. If you change a price on a laptop, it updates on user screens instantly!
-            db.collection("products").onSnapshot((querySnapshot) => {
+        // Clean, non-blocking asynchronous cloud initialization pass
+        async function fetchStoreMetadataFromCloud() {
+            try {
+                // Fetch Products
+                const productSnap = await db.collection("products").get();
                 window.productsDB = [];
-                querySnapshot.forEach((doc) => {
+                productSnap.forEach((doc) => {
                     const data = doc.data();
                     window.productsDB.push({
-                        id: doc.id, // Using Firebase document string ID natively
+                        id: doc.id,
                         name: data.name,
                         salePrice: parseFloat(data.salePrice),
                         rentPrice: data.rentPrice ? parseFloat(data.rentPrice) : null,
@@ -1947,7 +1937,7 @@ if (selectedMode === 'sale') {
                     });
                 });
 
-                // SEEDING BACKUP: If database file is brand new/empty, upload your initial stock setup automatically
+                // Cold start seed validation check
                 if (window.productsDB.length === 0) {
                     const initialStock = [
                         { name: 'Cement Bricks', salePrice: 8, rentPrice: 0, imageSrc: 'cementbricks.png', stockQuantity: 45 },
@@ -1955,25 +1945,36 @@ if (selectedMode === 'sale') {
                         { name: 'Ventilators', salePrice: 650, rentPrice: 50, imageSrc: 'ventilators.png', stockQuantity: 25 },
                         { name: 'Stones', salePrice: 1200, rentPrice: 0, imageSrc: 'stones.png', stockQuantity: 50 }
                     ];
-                    initialStock.forEach(item => db.collection("products").add(item));
-                    return;
+                    for (const item of initialStock) {
+                        await db.collection("products").add(item);
+                    }
+                    // Re-fetch once seeded to map valid string document IDs
+                    return fetchStoreMetadataFromCloud();
                 }
 
-                // Render current screen metrics 
-                if(currentSectionId === 'home-section') renderCatalog();
-                if(currentSectionId === 'update-section') renderInventoryList();
-                if(currentSectionId === 'garage-section') renderGaragePanel();
-            });
-
-            // 2. REAL-TIME INVOICES LISTENER: Syncs full financial historic books cleanly across profiles
-            db.collection("invoices").orderBy("timestamp", "desc").onSnapshot((querySnapshot) => {
+                // Fetch Invoices
+                const invoiceSnap = await db.collection("invoices").orderBy("timestamp", "desc").get();
                 window.billsArchiveStore = [];
-                querySnapshot.forEach((doc) => {
+                invoiceSnap.forEach((doc) => {
                     window.billsArchiveStore.push(doc.data());
                 });
-                if(currentSectionId === 'bills-section') renderBillsArchivalLedger();
-                if(currentSectionId === 'sales-section') renderTodaySalesDashboard();
-            });
+
+                // Safely update layout screens
+                renderCatalog();
+            } catch (err) {
+                console.error("Cloud fetch network exception caught:", err.message);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const headerBar = document.querySelector('.brand-header');
+            const mainContent = document.getElementById('main-content');
+
+            if (headerBar) headerBar.style.left = '0';
+            if (mainContent) mainContent.classList.add('expanded');
+
+            // Trigger non-blocking sync pass
+            fetchStoreMetadataFromCloud();
         });
 
 
