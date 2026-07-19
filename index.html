@@ -922,7 +922,6 @@
         window.billsArchiveStore = [];
         let salesHistory = [];
         let sidebarTimeout = null;
-        let isUserAuthenticatedAdmin = false;
         const ADMIN_SECRET_PASSCODE_KEY = "Mohan9247";
 
         // Admin Modal Interface Management Logic
@@ -947,7 +946,7 @@
         function verifyAdminPasscodeCredentials() {
             const enteredPin = document.getElementById('admin-secret-pin').value;
             if (enteredPin === ADMIN_SECRET_PASSCODE_KEY) {
-                isUserAuthenticatedAdmin = true;
+                window.isUserAuthenticatedAdmin = true;
                 alert('🔓 Access Granted! Owner options are now unlocked.');
                 document.querySelectorAll('.admin-only-tab').forEach(tab => tab.style.display = 'block');
                 const gateBtn = document.getElementById('admin-gate-btn');
@@ -965,7 +964,7 @@
         }
 
         function logOutAdminSecurely() {
-            isUserAuthenticatedAdmin = false;
+            window.isUserAuthenticatedAdmin = false;
             alert('🔒 Admin Console Locked.');
             document.querySelectorAll('.admin-only-tab').forEach(tab => tab.style.display = 'none');
             switchSection('home-section');
@@ -975,6 +974,7 @@
             gateBtn.style.color = "#94a3b8";
             gateBtn.style.borderColor = "#334155";
         }
+
 
         function startSidebarIdleTimer() {
             clearSidebarIdleTimer();
