@@ -430,8 +430,6 @@
     
     </style>
 
-    <script src="https://gstatic.com"></script>
-    <script src="https://gstatic.com"></script>
 
 
 
@@ -449,17 +447,34 @@
             <p style="font-size: 0.85rem; font-family: 'Segoe UI', system-ui, sans-serif; font-weight: 700; color: #cbd5e1; margin-top: 4px; letter-spacing: 0.5px; text-transform: uppercase;">Sai Harsha Traders</p>
         </div>
 
-        <!-- Store Navigation Links Menu Grid -->
+        <!-- Secured Navigation Links Menu Grid -->
         <ul class="nav-links">
             <li class="active" onclick="switchSection('home-section', this)">Home</li>
-            <li class="admin-only-tab" onclick="switchSection('update-section', this)">⚙️ Update Items</li>
-            <li class="admin-only-tab" onclick="switchSection('sales-section', this)">📊 Today's Sales</li>
-            <li class="admin-only-tab" onclick="switchSection('bills-section', this)">📋 Previous Bills</li>
-            <li class="admin-only-tab" onclick="switchSection('garage-section', this)">🏢 Garage Stock</li>
+            <!-- Administrative Restricted Panels Hidden by default -->
+            <li class="admin-only-tab" onclick="switchSection('update-section', this)" style="display: none;">⚙️ Update Items</li>
+            <li class="admin-only-tab" onclick="switchSection('sales-section', this)" style="display: none;">📊 Today's Sales</li>
+            <li class="admin-only-tab" onclick="switchSection('bills-section', this)" style="display: none;">📋 Previous Bills</li>
+            <li class="admin-only-tab" onclick="switchSection('garage-section', this)" style="display: none;">🏢 Garage Stock</li>
         </ul>
 
+        <!-- Sticky Admin Lock Anchor Button sitting at the base of the sidebar links list -->
+        <div class="no-print" style="margin-top: auto; padding: 15px; border-top: 1px solid #1e293b;">
+            <button id="admin-gate-btn" style="width: 100%; padding: 10px; background: #1e293b; border: 1px solid #334155; color: #94a3b8; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;" onclick="openAdminPasswordModal()">🔒 Admin Login</button>
+        </div>
 
-        
+        <!-- Secure Password Overlay Dashboard (Hidden by default) -->
+        <div id="admin-auth-overlay" class="no-print" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 9999; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 30px; border-radius: 12px; max-width: 360px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); text-align: center;">
+                <div style="font-size: 2.5rem; margin-bottom: 10px;">🔐</div>
+                <h3 style="color: var(--primary-color); margin-bottom: 8px; font-size:1.3rem;">Owner Authentication</h3>
+                <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 20px;">Please enter your secret dashboard PIN to unlock store records.</p>
+                <input type="password" id="admin-secret-pin" placeholder="Enter Admin Passcode" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center; font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 15px; outline: none; box-sizing: border-box;">
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" style="flex:1; padding: 10px; background: #e2e8f0; border: none; border-radius: 6px; color: #475569; font-weight: 600; cursor: pointer;" onclick="closeAdminPasswordModal()">Cancel</button>
+                    <button type="button" style="flex:2; padding: 10px; background: var(--primary-color); border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;" onclick="verifyAdminPasscodeCredentials()">Unlock Console</button>
+                </div>
+            </div>
+        </div>
     </nav>
 
     <!-- Main Workspace Area -->
@@ -882,45 +897,114 @@
     </div>
 
 
-<!-- Include Google Firebase Production App & Firestore Engines -->
-    
-    
-    <script>
-        // Paste your exact unique configuration object details copied from your console here:
-       const firebaseConfig = {
-                apiKey: "AIzaSyDAt4rrGTPwQhiO2VcpRGzpIghGOtzy28Q",
-                authDomain: "sai-harsha-traders-95b80.firebaseapp.com",
-                projectId: "sai-harsha-traders-95b80",
-                storageBucket: "sai-harsha-traders-95b80.firebasestorage.app",
-                messagingSenderId: "996000321021",
-                appId: "1:996000321021:web:abcda4c1cb5550d48f1d94"
-            };
 
-        // Initialize Firebase Engines
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        window.productsDB = [];
-        window.userCart = [];
-        window.salesHistory = [];
-        window.billsArchiveStore = [];
-        let salesHistory = [];
-        let sidebarTimeout = null;
-       
+    <!-- JAVASCRIPT LOGIC ENGINE -->
+    <script>
+        // Main live mutable data store engine configured for your core supply inventory materials
+        let productsDB = [
+            { id: 1, name: 'Cement Bricks', salePrice: 8, rentPrice: 0, imageSrc: 'cementbricks.png', stockQuantity: 45 },
+            { id: 2, name: 'Nagarjuna Cement', salePrice: 420, rentPrice: 0, imageSrc: 'nagarjunacement.png', stockQuantity: 100 },
+            { id: 3, name: 'Ventilators', salePrice: 650, rentPrice: 50, imageSrc: 'ventilators.png', stockQuantity: 25 },
+            { id: 4, name: 'Stones', salePrice: 1200, rentPrice: 0, imageSrc: 'stones.png', stockQuantity: 50 }
+        ];
+
+
+        // Active State Storage Engine
+        let userCart = [];
 
         
+
+
+
+        // Internal memory logging engine for store transactions tracking
+        let salesHistory = [];
+
+          // Automatic Inactivity Tracking Core
+        let sidebarTimeout = null;
+
+        // Core Admin Access Control Variables Engine
+        let isUserAuthenticatedAdmin = false;
+        const ADMIN_SECRET_PASSCODE_KEY = "Mohan9247"; // You can change this to any passcode anytime!
+
+        function openAdminPasswordModal() {
+            if (isUserAuthenticatedAdmin) {
+                logOutAdminSecurely();
+                return;
+            }
+            document.getElementById('admin-auth-overlay').style.display = 'flex';
+            document.getElementById('admin-secret-pin').value = '';
+            document.getElementById('admin-secret-pin').focus();
+            
+            // Allow pressing Enter key to submit instantly
+            document.getElementById('admin-secret-pin').onkeydown = function(e) {
+                if (e.key === 'Enter') verifyAdminPasscodeCredentials();
+            };
+        }
 
         function closeAdminPasswordModal() {
             document.getElementById('admin-auth-overlay').style.display = 'none';
             document.getElementById('admin-secret-pin').value = '';
         }
 
-       
+        function verifyAdminPasscodeCredentials() {
+            const enteredPin = document.getElementById('admin-secret-pin').value;
+            
+            if (enteredPin === ADMIN_SECRET_PASSCODE_KEY) {
+                isUserAuthenticatedAdmin = true;
+                alert('🔓 Access Granted! Owner options are now unlocked.');
+                
+                // Show hidden tabs instantly
+                document.querySelectorAll('.admin-only-tab').forEach(tab => {
+                    tab.style.display = 'block';
+                });
+                
+                // Switch login button to an active logout state look
+                const gateBtn = document.getElementById('admin-gate-btn');
+                gateBtn.innerHTML = "🔓 Lock Admin Console";
+                gateBtn.style.background = "#ef4444";
+                gateBtn.style.color = "white";
+                gateBtn.style.borderColor = "#ef4444";
+                
+                closeAdminPasswordModal();
+                startSidebarIdleTimer();
+            } else {
+                alert('❌ Access Denied: Incorrect admin passcode. Please try again.');
+                document.getElementById('admin-secret-pin').value = '';
+                document.getElementById('admin-secret-pin').focus();
+            }
+        }
+
+        function logOutAdminSecurely() {
+            isUserAuthenticatedAdmin = false;
+            alert('🔒 Admin Console Locked.');
+            
+            // Re-hide admin links
+            document.querySelectorAll('.admin-only-tab').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            
+            // Fallback screen route back to public Home catalog grid safely
+            switchSection('home-section');
+            
+            // Revert state button properties back to defaults
+            const gateBtn = document.getElementById('admin-gate-btn');
+            gateBtn.innerHTML = "🔒 Admin Login";
+            gateBtn.style.background = "#1e293b";
+            gateBtn.style.color = "#94a3b8";
+            gateBtn.style.borderColor = "#334155";
+        }
+
 
         function startSidebarIdleTimer() {
+            // Cancel any old active countdowns first to prevent duplicate loops
             clearSidebarIdleTimer();
+            
             const sidebar = document.getElementById('sidebar');
+            // Only start counting down if the sidebar is physically open
             if (sidebar && !sidebar.classList.contains('closed')) {
-                sidebarTimeout = setTimeout(() => { closeSidebarAutomatically(); }, 10000);
+                sidebarTimeout = setTimeout(() => {
+                    closeSidebarAutomatically();
+                }, 10000); // 10,000 milliseconds = 10 seconds
             }
         }
 
@@ -932,136 +1016,212 @@
         }
 
         function closeSidebarAutomatically() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-            const menuBtn = document.querySelector('.menu-btn');
-            const headerBar = document.querySelector('.brand-header');
-            if (sidebar && !sidebar.classList.contains('closed')) {
-                sidebar.classList.add('closed');
-                if (mainContent) mainContent.classList.add('expanded');
-                if (headerBar) headerBar.style.left = '0';
-                if (menuBtn) {
-                    menuBtn.innerText = '☰';
-                    menuBtn.style.fontSize = '1.8rem';
-                }
-            }
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const menuBtn = document.querySelector('.menu-btn');
+    const headerBar = document.querySelector('.brand-header');
+
+    if (sidebar && !sidebar.classList.contains('closed')) {
+        sidebar.classList.add('closed');
+        if (mainContent) mainContent.classList.add('expanded');
+        if (headerBar) headerBar.style.left = '0';
+        if (menuBtn) {
+            menuBtn.innerText = '☰';
+            menuBtn.style.fontSize = '1.8rem';
         }
+    }
+}
 
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('main-content');
-            const menuBtn = document.querySelector('.menu-btn');
-            const headerBar = document.querySelector('.brand-header');
-            sidebar.classList.toggle('closed');
-            mainContent.classList.toggle('expanded');
-            if (sidebar.classList.contains('closed')) {
-                menuBtn.innerText = '☰';
-                menuBtn.style.fontSize = '1.8rem';
-                if (headerBar) headerBar.style.left = '0';
-                clearSidebarIdleTimer();
-            } else {
-                menuBtn.innerText = '✕';
-                menuBtn.style.fontSize = '1.6rem';
-                menuBtn.style.fontWeight = 'bold';
-                if (headerBar) headerBar.style.left = 'var(--sidebar-width)';
-                startSidebarIdleTimer();
-            }
-        }
 
-        let previousSectionId = 'home-section';
-        let currentSectionId = 'home-section';
+        // Layout Mechanics (With Integrated 10-Second Auto-Hide)
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+    const menuBtn = document.querySelector('.menu-btn');
+    const headerBar = document.querySelector('.brand-header');
 
-        async function switchSection(sectionId, element = null) {
-            closeSidebarAutomatically();
-            if (sectionId !== currentSectionId) {
-                previousSectionId = currentSectionId;
-                currentSectionId = sectionId;
-            }
-            document.querySelectorAll('.app-section').forEach(section => section.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
+    sidebar.classList.toggle('closed');
+    mainContent.classList.toggle('expanded');
+
+    if (sidebar.classList.contains('closed')) {
+        menuBtn.innerText = '☰';
+        menuBtn.style.fontSize = '1.8rem';
+        if (headerBar) headerBar.style.left = '0';
+        clearSidebarIdleTimer(); // Stop counting down if closed manually
+    } else {
+        menuBtn.innerText = '✕';
+        menuBtn.style.fontSize = '1.6rem';
+        menuBtn.style.fontWeight = 'bold';
+        if (headerBar) headerBar.style.left = 'var(--sidebar-width)';
+        startSidebarIdleTimer(); // Kick off the 10-second timer when opened
+    }
+}
+
+
+// Global tracker memory engine for history navigation paths
+let previousSectionId = 'home-section';
+let currentSectionId = 'home-section';
+
+function switchSection(sectionId, element = null) {
+    // Prevent setting the same page as your back history route
+    if (sectionId !== currentSectionId) {
+        previousSectionId = currentSectionId;
+        currentSectionId = sectionId;
+    }
+
+    document.querySelectorAll('.app-section').forEach(section => {
+        section.classList.remove('active');
+    });
+
+    document.getElementById(sectionId).classList.add('active');
+
+
             if (element) {
                 document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
                 element.classList.add('active');
             }
+            
+            // Reset the 10-second timer whenever a user clicks a menu link
             startSidebarIdleTimer();
+
+            // Dynamic Visibility Controller for the Floating Shopping Cart Button
             const floatingCartBtn = document.querySelector('.cart-toggle-btn.no-print');
             if (floatingCartBtn) {
                 if (sectionId === 'cart-section' || sectionId === 'invoice-section') {
+                    // Hide the button completely when viewing the cart or checking out an invoice
                     floatingCartBtn.style.display = 'none';
                 } else {
+                    // Bring the button back for all other public or administrative screens
                     floatingCartBtn.style.display = 'flex';
                 }
             }
-            
-            // Fetch fresh database states on-demand before rendering views
-            await fetchStoreMetadataFromCloud();
 
-            if(sectionId === 'home-section') renderCatalog();
-            else if(sectionId === 'cart-section') renderCartUI();
-            else if(sectionId === 'update-section') renderInventoryList();
-            else if(sectionId === 'garage-section') renderGaragePanel();
-            else if(sectionId === 'sales-section') renderTodaySalesDashboard();
-            else if(sectionId === 'bills-section') renderBillsArchivalLedger();
+            if(sectionId === 'home-section') {
+                renderCatalog();
+            } else if(sectionId === 'cart-section') {
+                renderCartUI();
+            } else if(sectionId === 'update-section') {
+                renderInventoryList();
+            } else if(sectionId === 'garage-section') {
+                renderGaragePanel();
+            } else if(sectionId === 'sales-section') {
+                renderTodaySalesDashboard();
+            } else if(sectionId === 'bills-section') {
+            renderBillsArchivalLedger();
         }
+    }
+
+    function goBackToPreviousSection() {
+        // Force specific administrative dashboards to always go back straight to Home
+    if (currentSectionId === 'update-section' || 
+        currentSectionId === 'sales-section' || 
+        currentSectionId === 'bills-section' || 
+        currentSectionId === 'garage-section' || currentSectionId === 'cart-section') {
+        switchSection('home-section');
+    } else {
+        // Standard historical fallback path for the Cart and Invoice screens
+        switchSection(previousSectionId);
+    }
+}
 
 
+
+
+
+
+
+        // Garage Section Rendering and Management Logic with live query search filters
         function renderGaragePanel() {
             const tbody = document.getElementById('garage-table-rows');
             const dropdown = document.getElementById('garage-item-dropdown');
+            
             if (!tbody || !dropdown) return;
+            
             tbody.innerHTML = '';
             dropdown.innerHTML = '';
+
+            // Extract the keywords typed inside the garage filter field
             const searchInput = document.getElementById('garage-search-input');
             const searchKeyword = searchInput ? searchInput.value.toLowerCase().trim() : '';
-            const filteredItems = productsDB.filter(item => item.name.toLowerCase().includes(searchKeyword));
+
+            // Filter products data array rules based on current query string parameter metrics
+            const filteredItems = productsDB.filter(item => 
+                item.name.toLowerCase().includes(searchKeyword)
+            );
+
+            // Populate the reloader dropdown panel selector option tags using full database parameters
             productsDB.forEach(item => {
                 const option = document.createElement('option');
                 option.value = item.id;
                 option.innerText = item.name;
                 dropdown.appendChild(option);
             });
+
             if (filteredItems.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#94a3b8; padding:20px;">No warehouse stock item logs match search criteria.</td></tr>`;
                 return;
             }
+
             filteredItems.forEach(item => {
-                if (item.stockQuantity === undefined || item.stockQuantity === null) item.stockQuantity = 0;
+                if (item.stockQuantity === undefined || item.stockQuantity === null) {
+                    item.stockQuantity = 0;
+                }
+
                 const isOutOfStock = item.stockQuantity === 0;
                 const statusBadge = isOutOfStock 
                     ? `<span style="font-size:0.85rem; padding:3px 8px; border-radius:4px; font-weight:bold; background:#fee2e2; color:#b91c1c;">🚫 Out of Stock</span>`
                     : `<span style="font-size:0.85rem; padding:3px 8px; border-radius:4px; font-weight:bold; background:#dcfce7; color:#15803d;">✅ Available</span>`;
-                const imgPreview = item.imageSrc ? `<img src="${item.imageSrc}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; margin-right:10px; vertical-align:middle;">` : `<div style="width:40px; height:40px; background:#cbd5e1; display:inline-block; margin-right:10px; vertical-align:middle; border-radius:4px;"></div>`;
+
+                const imgPreview = item.imageSrc 
+                    ? `<img src="${item.imageSrc}" style="width:40px; height:40px; object-fit:cover; border-radius:4px; margin-right:10px; vertical-align:middle;">` 
+                    : `<div style="width:40px; height:40px; background:#cbd5e1; display:inline-block; margin-right:10px; vertical-align:middle; border-radius:4px;"></div>`;
+
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td style="font-weight:600; padding:12px;">${imgPreview}${item.name}</td><td style="padding:12px; font-weight:bold; font-size:1.05rem;">${item.stockQuantity} items</td><td style="padding:12px;">${statusBadge}</td>`;
+                tr.innerHTML = `
+                    <td style="font-weight:600; padding:12px;">${imgPreview}${item.name}</td>
+                    <td style="padding:12px; font-weight:bold; font-size:1.05rem;">${item.stockQuantity} items</td>
+                    <td style="padding:12px;">${statusBadge}</td>
+                `;
                 tbody.appendChild(tr);
             });
         }
 
+
+        // Upgraded Incremental Warehouse Stock Reloader Controller
         function saveGarageStockCount() {
-            const itemId = document.getElementById('garage-item-dropdown').value;
+            const itemId = parseInt(document.getElementById('garage-item-dropdown').value);
             const qtyVal = parseInt(document.getElementById('garage-stock-qty').value);
 
+            // Strict Validation Check: Force positive additions only
             if(isNaN(qtyVal) || qtyVal <= 0) {
                 alert('Please enter a valid stock addition quantity greater than 0!');
                 return;
             }
 
-            // Atomically increases the integer count field right inside Firebase cloud documents safely
-            db.collection("products").doc(itemId).update({
-                stockQuantity: firebase.firestore.FieldValue.increment(qtyVal)
-            })
-            .then(() => {
+            const item = productsDB.find(p => p.id === itemId);
+            if(item) {
+                // Safeguard default values if currently unassigned
+                if (item.stockQuantity === undefined || item.stockQuantity === null) {
+                    item.stockQuantity = 0;
+                }
+
+                // Math Update: Add the new incoming quantity to the existing count volume
+                const previousStockTotal = item.stockQuantity;
+                item.stockQuantity += qtyVal;
+
+                // Clear input box and refresh screen layout grids live
                 document.getElementById('garage-stock-qty').value = '';
-                alert('📦 Stock Volume successfully synchronized to database folder ledger!');
-            })
-            .catch(err => alert('Stock Update Error: ' + err.message));
+                renderGaragePanel();
+                
+                alert(`📦 Stock Reloaded: Added ${qtyVal} units to ${item.name}.\n(Inventory increased from ${previousStockTotal} to ${item.stockQuantity})`);
+            }
         }
+
 
 
         // Mobile-Optimized Horizontal List Catalog Renderer with Large Touch Buttons
         function renderCatalog() {
             const container = document.getElementById('products-container');
-            if(!container) return;
             container.innerHTML = '';
 
             if(productsDB.length === 0) {
@@ -1086,7 +1246,6 @@
             }
 
             filteredProducts.forEach(product => {
-                // FIXED CRITICAL GLITCH: Map checks correctly to product.stockQuantity variable name
                 const isOutOfStock = product.stockQuantity === undefined || product.stockQuantity === null || product.stockQuantity <= 0;
                 const isRentDisabled = product.rentPrice === undefined || product.rentPrice === null || isNaN(product.rentPrice) || product.rentPrice <= 0;
                 
@@ -1140,21 +1299,24 @@
                         </div>
                     </div>
 
-                    <!-- Right-Aligned Action Control Wrapper -->
+                    <!-- Right-Aligned Action Control Wrapper (Reconfigured into Large Mobile Touch Blocks) -->
                     <div style="display: flex; flex-direction: row; align-items: center; gap: 15px; background: #f8fafc; border: 1px solid #f1f5f9; padding: 10px 15px; border-radius: 8px; flex-shrink: 0;">
                         
                         <!-- Premium Segmented Mobile-Friendly Mode Switcher Buttons -->
                         <div style="display: flex; background: #e2e8f0; border-radius: 6px; padding: 3px; gap: 2px; ${isOutOfStock ? 'pointer-events:none; opacity:0.5;' : ''}">
+                            <!-- Buy Segment Block -->
                             <button id="seg-sale-${product.id}" type="button" style="border: none; padding: 8px 14px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; background: var(--primary-color); color: white;" onclick="toggleMobileTransactionMode(${product.id}, 'sale')">
                                 Buy
                             </button>
+                            <!-- Rent Segment Block -->
                             <button id="seg-rent-${product.id}" type="button" style="border: none; padding: 8px 14px; border-radius: 4px; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; background: transparent; color: #475569; ${isRentDisabled ? 'opacity:0.3; cursor:not-allowed;' : ''}" ${isRentDisabled ? 'disabled' : ''} onclick="toggleMobileTransactionMode(${product.id}, 'rent')">
                                 Rent
                             </button>
+                            <!-- Hidden state input tracker to maintain full code compatibility with checkout loops -->
                             <input type="hidden" id="mobile-mode-input-${product.id}" value="sale">
                         </div>
 
-                        <!-- Quantity picker with hidden browser default arrow spinners -->
+                        <!-- Quantity picker -->
                         <div style="display: flex; align-items: center; gap: 8px; border-left: 1px dashed #cbd5e1; padding-left: 15px; ${isOutOfStock ? 'display:none;' : ''}">
                             <div style="display: flex; align-items: center; background: white; border: 1px solid #cbd5e1; border-radius: 4px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
                                 <button type="button" style="width:28px; height:28px; border:none; background:#f1f5f9; font-weight:bold; font-size:1rem; cursor:pointer;" onclick="adjustQuantityValue(${product.id}, -1)">-</button>
@@ -1176,9 +1338,10 @@
         }
 
 
+
+        // Operational Quantity Incrementor Control Functions
         function adjustQuantityValue(productId, changeAmount) {
             const inputField = document.getElementById(`qty-input-${productId}`);
-            if(!inputField) return;
             let currentVal = parseInt(inputField.value) || 1;
             const maxLimit = parseInt(inputField.max);
 
@@ -1250,7 +1413,7 @@
             document.getElementById('form-item-rent').value = "";
         }
 
-function hideItemFormPanel() {
+        function hideItemFormPanel() {
             document.getElementById('item-form-panel').style.display = 'none';
         }
 
@@ -1288,29 +1451,30 @@ function hideItemFormPanel() {
             }
 
 
-            // Rewritten for direct Firestore document management
+            // Internal modular saving block executor
             function commitRecordToDatabase(compiledImageString) {
-                const recordData = {
-                    name: nameVal,
-                    salePrice: saleVal,
-                    rentPrice: rentVal,
-                    imageSrc: compiledImageString
-                };
-
-                db.collection("products").doc(itemId).update({
-                    stockQuantity: firebase.firestore.FieldValue.increment(qtyVal)
-                })
-                .then(async () => {
-                    document.getElementById('garage-stock-qty').value = '';
-                    // Add these two execution steps:
-                    await fetchStoreMetadataFromCloud();
-                    renderGaragePanel();
-                    alert('📦 Stock Volume successfully synchronized!');
-                });
-
+                if(idVal) {
+                    const index = productsDB.findIndex(p => p.id == idVal);
+                    if(index !== -1) {
+                        productsDB[index].name = nameVal;
+                        productsDB[index].imageSrc = compiledImageString;
+                        productsDB[index].salePrice = saleVal;
+                        productsDB[index].rentPrice = rentVal;
+                    }
+                } else {
+                    const newItem = {
+                        id: Date.now(),
+                        name: nameVal,
+                        salePrice: saleVal,
+                        rentPrice: rentVal,
+                        imageSrc: compiledImageString,
+                        stockQuantity: 0 // Initialize at 0; adjust later inside Garage dashboard
+                    };
+                    productsDB.push(newItem);
+                }
                 hideItemFormPanel();
+                renderInventoryList();
             }
-
 
             // Check if user selected a fresh file via browse button
             if (fileInput.files && fileInput.files[0]) {
@@ -1328,16 +1492,13 @@ function hideItemFormPanel() {
 
 
         function removeShopItem(id) {
-            if(confirm('Are you sure you want to remove this item permanently from cloud storage?')) {
-                db.collection("products").doc(id.toString()).delete()
-                .then(() => {
-                    userCart = userCart.filter(c => c.id !== id);
-                    updateCartCounterBadge();
-                })
-                .catch(err => alert('Error deleting: ' + err.message));
+            if(confirm('Are you sure you want to remove this item?')) {
+                productsDB = productsDB.filter(p => p.id !== id);
+                userCart = userCart.filter(c => c.id !== id);
+                updateCartCounterBadge();
+                renderInventoryList();
             }
         }
-
 
                 // Mobile UI Segment Toggle Controller Function
         function toggleMobileTransactionMode(productId, selectedMode) {
@@ -1350,7 +1511,7 @@ function hideItemFormPanel() {
             // Set hidden field data value state parameters
             hiddenInput.value = selectedMode;
 
-if (selectedMode === 'sale') {
+            if (selectedMode === 'sale') {
                 // Light up Buy box, clear Rent box background properties
                 saleButton.style.background = "var(--primary-color)";
                 saleButton.style.color = "white";
@@ -1481,7 +1642,6 @@ if (selectedMode === 'sale') {
             const saleContainer = document.getElementById('sale-cart-items');
             const rentContainer = document.getElementById('rent-cart-items');
             
-            if(!saleContainer || !rentContainer) return;
             saleContainer.innerHTML = '';
             rentContainer.innerHTML = '';
             
@@ -1526,8 +1686,7 @@ if (selectedMode === 'sale') {
             if (discountVal > grossVal) { discountVal = grossVal; discountField.value = grossVal; }
 
             const dynamicNetPayable = grossVal - discountVal;
-            const totalAmtElement = document.getElementById('cart-total-amount');
-            if(totalAmtElement) totalAmtElement.innerText = dynamicNetPayable;
+            document.getElementById('cart-total-amount').innerText = dynamicNetPayable;
         }
 
 
@@ -1537,6 +1696,7 @@ if (selectedMode === 'sale') {
                 alert('Your shopping cart is completely empty!');
                 return;
             }
+
             const customerNameVal = document.getElementById('cart-cust-name').value.trim();
             const customerPhoneVal = document.getElementById('cart-cust-phone').value.trim();
 
@@ -1638,44 +1798,17 @@ if (selectedMode === 'sale') {
                 salesItemsClone: [...salesItems], 
                 rentalItemsClone: [...rentalItems]
             };
+
             document.getElementById('cart-cust-name').value = "";
             document.getElementById('cart-cust-phone').value = "";
             if (discountInputElement) discountInputElement.value = "";
 
-            // Add native transactional timestamp values for strict database chronologic filtering indices
-            billingTransactionRecord.timestamp = firebase.firestore.FieldValue.serverTimestamp();
-
-            // Setup a smart safe batch operations pipe executor
-            const batchPipe = db.batch();
-
-            // 1. Queue full customer ledger receipt copy payload up to cloud database tables
-            const newInvoiceDocRef = db.collection("invoices").doc(uniqueInvoiceID);
-            batchPipe.set(newInvoiceDocRef, billingTransactionRecord);
-
-            // 2. Loop through cart lines to subtract physical volume metrics out of individual product files 
-            const allCheckedItems = [...salesItems, ...rentalItems];
-            allCheckedItems.forEach(cartLineItem => {
-                const productDocRef = db.collection("products").doc(cartLineItem.id.toString());
-                // Subtract purchased counts cleanly
-                batchPipe.update(productDocRef, {
-                    stockQuantity: firebase.firestore.FieldValue.increment(-1 * parseInt(cartLineItem.quantity))
-                });
-            });
-
-            // 3. Fire batch update command directly to cloud streams simultaneously
-            batchPipe.commit()
-            .then(() => {
-                // Clear active processing interface input flags safely 
-                document.getElementById('cart-cust-name').value = "";
-                document.getElementById('cart-cust-phone').value = "";
-                if (discountInputElement) discountInputElement.value = "";
-
-                userCart = [];
-                updateCartCounterBadge();
-                switchSection('invoice-section');
-            })
-            .catch(err => {
-                alert("Critical Billing Storage Transaction Error: " + err.message);
+            salesHistory.push({
+                time: formattedTimestamp,
+                summary: loggedItemsSummary.join(', '),
+                saleIncome: outrightCategoryTotal,
+                rentIncome: rentalCategoryTotal,
+                grandTotal: netPayableInvoiceAmount
             });
 
             if (window.billsArchiveStore === undefined) window.billsArchiveStore = [];
@@ -1712,7 +1845,6 @@ if (selectedMode === 'sale') {
         // Historical Invoice Archive Table Renderer (With Customer Information Tracking)
         function renderBillsArchivalLedger() {
             const tbody = document.getElementById('bills-archive-rows');
-            if(!tbody) return;
             tbody.innerHTML = '';
 
             if (window.billsArchiveStore === undefined || window.billsArchiveStore.length === 0) {
@@ -1748,16 +1880,9 @@ if (selectedMode === 'sale') {
             document.getElementById('invoice-cust-phone').innerText = targetRecord.customerPhone || 'N/A';
 
             // Re-render financial summary elements out of data packet records
-            const archivalGross = targetRecord.grossAmount !== undefined ? targetRecord.grossAmount : targetRecord.totalBillValue;
-            const archivalDiscount = targetRecord.discountAllowed || 0;
-            const archivalNet = targetRecord.totalBillValue;
-
-            // Lock local window trackers to match archived states explicitly to bypass standard cart overrides
-            window.currentCartGrossValue = archivalGross;
-
-            document.getElementById('invoice-gross-amount').innerText = archivalGross;
-            document.getElementById('invoice-discount-amount').innerText = archivalDiscount;
-            document.getElementById('invoice-grand-total').innerText = archivalNet;
+            document.getElementById('invoice-gross-amount').innerText = targetRecord.grossAmount !== undefined ? targetRecord.grossAmount : targetRecord.totalBillValue;
+            document.getElementById('invoice-discount-amount').innerText = targetRecord.discountAllowed || 0;
+            document.getElementById('invoice-grand-total').innerText = targetRecord.totalBillValue;
 
             // Bind metadata serial tracking parameters back onto heading blocks
             document.getElementById('invoice-serial-id').innerText = targetRecord.id;
@@ -1765,6 +1890,7 @@ if (selectedMode === 'sale') {
 
             const invoiceRowsContainer = document.getElementById('invoice-rows');
             invoiceRowsContainer.innerHTML = '';
+
             if (targetRecord.salesItemsClone && targetRecord.salesItemsClone.length > 0) {
                 appendInvoiceCategoryHeader(invoiceRowsContainer, 'Outright Purchase Inventory');
                 targetRecord.salesItemsClone.forEach(item => {
@@ -1834,7 +1960,7 @@ if (selectedMode === 'sale') {
             if (rentSpan) rentSpan.innerText = totalRentals;
         }
 
-
+     
 
 
         // Native Browser Print/PDF Download System Trigger
@@ -1859,67 +1985,20 @@ if (selectedMode === 'sale') {
             }
         }
 
-        // Clean, non-blocking asynchronous cloud initialization pass
-        async function fetchStoreMetadataFromCloud() {
-            try {
-                // Fetch Products
-                const productSnap = await db.collection("products").get();
-                window.productsDB = [];
-                productSnap.forEach((doc) => {
-                    const data = doc.data();
-                    window.productsDB.push({
-                        id: doc.id,
-                        name: data.name,
-                        salePrice: parseFloat(data.salePrice),
-                        rentPrice: data.rentPrice ? parseFloat(data.rentPrice) : null,
-                        imageSrc: data.imageSrc || "",
-                        stockQuantity: parseInt(data.stockQuantity || 0)
-                    });
-                });
-
-                // Cold start seed validation check
-                if (window.productsDB.length === 0) {
-                    const initialStock = [
-                        { name: 'Cement Bricks', salePrice: 8, rentPrice: 0, imageSrc: 'cementbricks.png', stockQuantity: 45 },
-                        { name: 'Nagarjuna Cement', salePrice: 420, rentPrice: 0, imageSrc: 'nagarjunacement.png', stockQuantity: 100 },
-                        { name: 'Ventilators', salePrice: 650, rentPrice: 50, imageSrc: 'ventilators.png', stockQuantity: 25 },
-                        { name: 'Stones', salePrice: 1200, rentPrice: 0, imageSrc: 'stones.png', stockQuantity: 50 }
-                    ];
-                    for (const item of initialStock) {
-                        await db.collection("products").add(item);
-                    }
-                    // Re-fetch once seeded to map valid string document IDs
-                    return fetchStoreMetadataFromCloud();
-                }
-
-                // Fetch Invoices
-                const invoiceSnap = await db.collection("invoices").orderBy("timestamp", "desc").get();
-                window.billsArchiveStore = [];
-                invoiceSnap.forEach((doc) => {
-                    window.billsArchiveStore.push(doc.data());
-                });
-
-                // Safely update layout screens
-                renderCatalog();
-            } catch (err) {
-                console.error("Cloud fetch network exception caught:", err.message);
-            }
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
-            const headerBar = document.querySelector('.brand-header');
-            const mainContent = document.getElementById('main-content');
+    const headerBar = document.querySelector('.brand-header');
+    const mainContent = document.getElementById('main-content');
 
-            if (headerBar) headerBar.style.left = '0';
-            if (mainContent) mainContent.classList.add('expanded');
+    // Force header and workspace to stretch across screen because sidebar starts closed
+    if (headerBar) headerBar.style.left = '0';
+    if (mainContent) mainContent.classList.add('expanded');
 
-            // Trigger non-blocking sync pass
-            fetchStoreMetadataFromCloud();
-        });
-
+    renderCatalog();
+});
 
 
     </script>
 
 </body>
 </html>
+
